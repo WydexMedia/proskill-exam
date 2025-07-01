@@ -1,6 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
-// This page is rendered on the client side to access search parameters
 
 import { useSearchParams } from "next/navigation";
 
@@ -8,6 +6,9 @@ export default function FailurePage() {
   const searchParams = useSearchParams();
   const score = searchParams.get("score") ?? "N/A";
   const name = searchParams.get("name") ?? "";
+
+  // ...
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8">
