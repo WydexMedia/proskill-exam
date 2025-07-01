@@ -1,8 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const score = searchParams.get("score") ?? "N/A";
   const name = searchParams.get("name") ?? "";
@@ -35,7 +36,7 @@ export default function SuccessPage() {
           
           {name && (
             <p className="text-lg text-gray-600 font-light">
-              Well done, {name}
+              Dear {name}
             </p>
           )}
           
@@ -60,5 +61,13 @@ export default function SuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
