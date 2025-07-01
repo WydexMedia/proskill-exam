@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "antd"; // Import Ant Design Button
+import "antd/dist/reset.css"; // Import Ant Design styles if not already
 
 interface Question {
   name: string;
@@ -13,6 +15,7 @@ export default function ExamForm() {
   const [timeLeft, setTimeLeft] = useState<number>(20 * 60); // 20 minutes in seconds
   const [isTimeOver, setIsTimeOver] = useState<boolean>(false);
   const [started, setStarted] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleStartNow = async (): Promise<void> => {
     const emailInput = (
@@ -73,6 +76,7 @@ export default function ExamForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    setSubmitting(true); // Show loader
 
     const formData = new FormData(e.currentTarget);
     const answers: Record<string, string> = {};
@@ -114,6 +118,7 @@ export default function ExamForm() {
       }
     } else {
       alert("Error submitting exam.");
+      setSubmitting(false); // Hide loader if error
     }
   };
 
@@ -271,13 +276,21 @@ export default function ExamForm() {
             )}
             
             {!started && (
-              <button
-                type="button"
+              <Button
+                type="primary"
                 onClick={handleStartNow}
-                className="w-full mt-6 bg-black text-white py-3 px-6 text-lg font-bold hover:bg-gray-800 transition-colors"
+                className="w-full"
+                style={{
+                  backgroundColor: "#000",
+                  color: "#fff",
+                  border: "none",
+                  height: 56,
+                  fontSize: 20,
+                  marginTop: 24,
+                }}
               >
                 START EXAM
-              </button>
+              </Button>
             )}
           </div>
 
@@ -316,12 +329,21 @@ export default function ExamForm() {
 
               {/* Submit Button */}
               <div className="mt-8 pt-6 border-t-2 border-black">
-                <button
-                  type="submit"
-                  className="w-full bg-black text-white py-4 px-6 text-xl font-bold hover:bg-gray-800 transition-colors"
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={submitting}
+                  className="w-full"
+                  style={{
+                    backgroundColor: "#000",
+                    color: "#fff",
+                    border: "none",
+                    height: 56,
+                    fontSize: 20,
+                  }}
                 >
                   SUBMIT EXAM
-                </button>
+                </Button>
               </div>
             </div>
           )}

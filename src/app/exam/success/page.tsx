@@ -43,6 +43,9 @@ function SuccessContent() {
           <p className="text-base text-gray-500">
             You have successfully passed the examination
           </p>
+          <p className="text-base text-gray-500">
+          Your certificate will be sent to your email shortly.
+          </p>
         </div>
 
         {/* Score Display */}
