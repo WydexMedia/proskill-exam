@@ -123,8 +123,8 @@ Team Proskill
           Your certificate is attached to this email. Keep it as a record of your achievement.
         </p>
         <div style="margin:24px 0; text-align:center;">
-          <a href="https://proskilledu.com" style="background:#000000; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:4px; font-weight:bold; display:inline-block;">
-            Visit Your Course Dashboard
+          <a href="https://calculator.proskilledu.com/testimonial" style="background:#000000; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:4px; font-weight:bold; display:inline-block;">
+            Visit Your Success Stories
           </a>
         </div>
         <p style="font-size:16px; line-height:1.6;">
@@ -190,7 +190,7 @@ All the best!
           If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group. Our team is here to support your success.
         </p>
         <div style="margin: 24px 0; text-align: center;">
-          <a href="https://proskilledu.com" style="background: #000000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Review Your Course</a>
+          <a href="https://calculator.proskilledu.com/testimonial" style="background: #000000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Visit our success Stories</a>
         </div>
         <p style="font-size: 16px; line-height: 1.6;">
           Proskill is proud to have you as part of our learning community, and we believe in your potential to do even better.
