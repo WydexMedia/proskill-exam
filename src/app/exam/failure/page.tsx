@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+// This page is rendered on the client side to access search parameters
 
 import { useSearchParams } from "next/navigation";
 
