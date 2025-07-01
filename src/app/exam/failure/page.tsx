@@ -1,14 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function FailurePage() {
+function FailureContent() {
   const searchParams = useSearchParams();
   const score = searchParams.get("score") ?? "N/A";
   const name = searchParams.get("name") ?? "";
-
-  // ...
-
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8">
@@ -86,5 +84,13 @@ export default function FailurePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FailurePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FailureContent />
+    </Suspense>
   );
 }
