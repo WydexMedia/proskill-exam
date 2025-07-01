@@ -1,0 +1,286 @@
+import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
+import nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+
+
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log('hiiii')
+console.log("EMAIL_CLIENT_ID:", process.env.EMAIL_CLIENT_ID);
+console.log("EMAIL_CLIENT_SECRET:", process.env.EMAIL_CLIENT_SECRET);
+console.log("EMAIL_REFRESH_TOKEN:", process.env.EMAIL_REFRESH_TOKEN);
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL_USER,
+        clientId: process.env.EMAIL_CLIENT_ID,
+        clientSecret: process.env.EMAIL_CLIENT_SECRET,
+        refreshToken: process.env.EMAIL_REFRESH_TOKEN,
+    },
+});
+
+async function generateCertificatePDF(name: string, tutor: string, dateStr: string) {
+    // Load background image
+    const certImagePath = path.join(process.cwd(), "public/certificate.jpg");
+    const certImageBytes = fs.readFileSync(certImagePath);
+
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([842, 595]);
+
+    const jpgImage = await pdfDoc.embedJpg(certImageBytes);
+    page.drawImage(jpgImage, {
+        x: 0,
+        y: 0,
+        width: 842,
+        height: 595,
+    });
+
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    // Student name
+    page.drawText(name, {
+        x: 260,
+        y: 300,
+        size: 36,
+        font,
+        color: rgb(0, 0, 0),
+    });
+
+    // Tutor name
+    page.drawText(tutor, {
+        x: 170,
+        y: 18,
+        size: 20,
+        font,
+        color: rgb(0, 0, 0),
+    });
+
+    // Current date (passed as argument)
+    page.drawText(dateStr, {
+        x: 372,
+        y: 18,
+        size: 18,
+        font,
+        color: rgb(0, 0, 0),
+    });
+
+    const pdfBytes = await pdfDoc.save();
+    return pdfBytes;
+}
+
+async function sendCertificateEmail(
+    name: string,
+    email: string,
+    tutor: string,
+    dateStr: string
+) {
+    const certBuffer = await generateCertificatePDF(name, tutor, dateStr);
+
+    await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "🎓 Congratulations! You Passed the Exam",
+        text: `Dear ${name},
+
+Congratulations on successfully passing your exam!
+
+Please find your certificate attached.
+
+Name: ${name}
+Tutor: ${tutor}
+Date: ${dateStr}
+
+We are proud to have you as part of our learning community.
+
+All the best,
+Team Proskill
+`,
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #ddd; background:#ffffff; color:#333;">
+        <h2 style="color:#000000; font-size:22px; margin-bottom:16px;">
+          🎓 Congratulations! You Passed the Exam
+        </h2>
+        <p style="font-size:16px; line-height:1.6;">
+          Dear <strong>${name}</strong>,
+        </p>
+        <p style="font-size:16px; line-height:1.6;">
+          Congratulations on successfully completing your examination with <strong>Proskill</strong>!
+        </p>
+        <p style="font-size:16px; line-height:1.6;">
+          You have demonstrated dedication and skill in mastering the material.
+        </p>
+        <p style="font-size:16px; line-height:1.6;">
+          <strong>Exam Details:</strong><br>
+          Name: ${name}<br>
+          Tutor: ${tutor}<br>
+          Date: ${dateStr}
+        </p>
+        <p style="font-size:16px; line-height:1.6;">
+          Your certificate is attached to this email. Keep it as a record of your achievement.
+        </p>
+        <div style="margin:24px 0; text-align:center;">
+          <a href="https://proskilledu.com" style="background:#000000; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:4px; font-weight:bold; display:inline-block;">
+            Visit Your Course Dashboard
+          </a>
+        </div>
+        <p style="font-size:16px; line-height:1.6;">
+          We are proud to have you as part of our learning community and look forward to seeing you achieve even more.
+        </p>
+        <p style="font-size:16px; line-height:1.6; margin-top:24px;">
+          All the best!<br>
+          — Team Proskill
+        </p>
+      </div>
+    `,
+        attachments: [
+            {
+                filename: "certificate.pdf",
+                content: Buffer.from(certBuffer),
+            },
+        ],
+    });
+}
+
+
+async function sendFailureEmail(name: string, email: string) {
+    await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Opportunity to Improve Your Exam Score",
+        text: `Dear ${name},
+
+Thank you for completing your recent examination with Proskill.
+
+We noticed that your score didn’t meet the expected level. But don’t worry—you still have the opportunity to improve!
+
+You are allowed one more attempt within the next 24 hours.
+
+We encourage you to review the classes provided and give it your best in the second attempt.
+
+If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group.
+
+Proskill is proud to have you as part of our learning community.
+
+All the best!
+— Team Proskill
+`,
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #ddd; background: #ffffff; color: #333;">
+        <h2 style="color: #000000; font-size: 22px; margin-bottom: 16px;">Opportunity to Improve Your Exam Score</h2>
+        <p style="font-size: 16px; line-height: 1.6;">
+          Dear <strong>${name}</strong>,
+        </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          Thank you for completing your recent examination with <strong>Proskill</strong> as part of your online course.
+        </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          We noticed that your score in this attempt didn’t meet the expected level. But don’t worry — you still have the opportunity to improve!
+        </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          You are allowed <strong>one more attempt within the next 24 hours.</strong>
+        </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          We encourage you to review the classes provided and give it your best in the second attempt.
+        </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group. Our team is here to support your success.
+        </p>
+        <div style="margin: 24px 0; text-align: center;">
+          <a href="https://proskilledu.com" style="background: #000000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Review Your Course</a>
+        </div>
+        <p style="font-size: 16px; line-height: 1.6;">
+          Proskill is proud to have you as part of our learning community, and we believe in your potential to do even better.
+        </p>
+        <p style="font-size: 16px; line-height: 1.6; margin-top: 24px;">
+          All the best!<br>
+          — Team Proskill
+        </p>
+      </div>
+    `,
+    });
+}
+
+
+
+export async function POST(req: Request) {
+    try {
+        const data = await req.json();
+
+        const correctAnswers = {
+            "resin-ingredient": "Epoxy resin",
+            "epoxy-curing": "Hardener",
+            "mixing-ratio": "1:1",
+            "embed-material": "Dried flowers",
+            "heat-gun-purpose": "Remove air bubbles",
+            "jewelry-resin": "UV Resin",
+            "resin-skin": "Wash with soap and water",
+            "cure-time": "24-72 hours",
+            "curing-factor": "All of the above",
+            "mix-slowly": "To prevent excess bubbles",
+            "too-much-pigment": "It becomes sticky and doesn't cure properly",
+            "not-safety": "Eating while working",
+            "prevent-yellowing": "Use UV-resistant resin and store artwork away from sunlight",
+            "sticky-reason": "Incorrect mixing ratio",
+            "best-mold": "Silicone molds",
+        };
+
+        let score = 0;
+
+        for (const [key, correct] of Object.entries(correctAnswers)) {
+            if (data.answers[key] === correct) {
+                score++;
+            }
+        }
+
+        const passed = score >= 12;
+
+        // Generate current date string
+        const dateStr = new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+
+        // Send email if passed or failed
+        let certBuffer = null;
+        if (passed) {
+            certBuffer = await generateCertificatePDF(data.name, data.tutor, dateStr);
+            await sendCertificateEmail(data.name, data.email, data.tutor, dateStr);
+        } else {
+            await sendFailureEmail(data.name, data.email);
+        }
+
+        const client = await clientPromise;
+        const db = client.db("examDB");
+
+        await db.collection("examSubmissions").insertOne({
+            name: data.name,
+            email: data.email,
+            mobile: data.mobile,
+            batch: data.batch,
+            tutor: data.tutor,
+            answers: data.answers,
+            score,
+            passed,
+            certificate: certBuffer ? Buffer.from(certBuffer) : null, // <-- Save certificate
+            submittedAt: new Date(),
+        });
+
+        return NextResponse.json({
+            success: true,
+            score,
+            passed,
+            submittedAt: new Date(),
+        });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json(
+            { success: false, error: "Server error" },
+            { status: 500 }
+        );
+    }
+}
