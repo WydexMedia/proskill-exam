@@ -62,10 +62,11 @@ export default function Dashboard() {
                 {submissions.length} submissions
               </p>
             </div>
-            <button
-              className="bg-black text-white px-6 py-2 font-light tracking-wide hover:bg-gray-900 transition-colors duration-200 self-start sm:self-auto"
+           <button
+              className="bg-black text-white px-6 py-2 font-light tracking-wide hover:bg-gray-900 transition-colors duration-200"
               onClick={() => {
-                alert("Logout clicked (localStorage not available in artifacts)");
+                localStorage.removeItem("proskill_logged_in");
+                router.push("/login");
               }}
             >
               Logout
