@@ -242,6 +242,7 @@ export default function ExamForm() {
             <p>• The test will automatically close after the allotted time</p>
             <p>• Ensure stable internet connection</p>
             <p>• Do not refresh or close the browser during the exam</p>
+            <p>• Please make sure your email address is correct, as your certificate will be sent there.</p>
           </div>
           <p className="mt-4 font-medium">Good luck! — Team Proskill</p>
         </div>
