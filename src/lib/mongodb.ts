@@ -1,3 +1,6 @@
+// import dns from "node:dns";
+// dns.setServers(['1.1.1.1']); // Cloudflare DNS
+
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI || "";

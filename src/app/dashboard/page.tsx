@@ -13,7 +13,7 @@ type Submission = {
   score: number;
   passed: boolean;
   submittedAt: string;
-  certificate?: string; // base64 string for download
+  // certificate?: string; // base64 string for download
 };
 
 export default function Dashboard() {
@@ -99,7 +99,7 @@ export default function Dashboard() {
                   <div>Tutor</div>
                   <div>Score</div>
                   <div>Status</div>
-                  <div>Action</div>
+                  {/* <div>Action</div> */}
                 </div>
               </div>
 
@@ -158,7 +158,7 @@ export default function Dashboard() {
                       </div>
                       
                       {/* Action */}
-                      <div>
+                      {/* <div>
                         {s.passed && s.certificate ? (
                           <button
                             className="inline-flex items-center text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200 border-b border-black hover:border-gray-600"
@@ -169,7 +169,7 @@ export default function Dashboard() {
                         ) : (
                           <span className="text-gray-300">—</span>
                         )}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ))}
@@ -240,7 +240,7 @@ export default function Dashboard() {
                         })}
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       {s.passed && s.certificate ? (
                         <a
                           href={`data:application/pdf;base64,${s.certificate}`}
@@ -252,7 +252,7 @@ export default function Dashboard() {
                       ) : (
                         <span className="text-gray-300">—</span>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               ))}

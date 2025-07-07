@@ -6,11 +6,11 @@ import path from "path";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log('hiiii')
-console.log("EMAIL_CLIENT_ID:", process.env.EMAIL_CLIENT_ID);
-console.log("EMAIL_CLIENT_SECRET:", process.env.EMAIL_CLIENT_SECRET);
-console.log("EMAIL_REFRESH_TOKEN:", process.env.EMAIL_REFRESH_TOKEN);
+// console.log("EMAIL_USER:", process.env.EMAIL_USER);
+// console.log('hiiii')
+// console.log("EMAIL_CLIENT_ID:", process.env.EMAIL_CLIENT_ID);
+// console.log("EMAIL_CLIENT_SECRET:", process.env.EMAIL_CLIENT_SECRET);
+// console.log("EMAIL_REFRESH_TOKEN:", process.env.EMAIL_REFRESH_TOKEN);
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -266,7 +266,7 @@ export async function POST(req: Request) {
             answers: data.answers,
             score,
             passed,
-            certificate: certBuffer ? Buffer.from(certBuffer) : null, // <-- Save certificate
+            // certificate: certBuffer ? Buffer.from(certBuffer) : null, // <-- Save certificate
             submittedAt: new Date(),
         });
 

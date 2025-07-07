@@ -1,3 +1,5 @@
+// import dns from "node:dns";
+// dns.setServers(['1.1.1.1']); // Cloudflare DNS
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
@@ -11,13 +13,13 @@ export async function GET() {
     .toArray();
 
   // Debug: Log certificate buffer length for each submission
-  console.log(
-    submissions.map((s) => ({
-      name: s.name,
-      passed: s.passed,
-      certLength: s.certificate ? Buffer.from(s.certificate).length : 0,
-    }))
-  );
+  // console.log(
+  //   submissions.map((s) => ({
+  //     name: s.name,
+  //     passed: s.passed,
+  //     certLength: s.certificate ? Buffer.from(s.certificate).length : 0,
+  //   }))
+  // );
 
   // Convert certificate buffer to base64 string for download
   const mapped = submissions.map((s) => ({
