@@ -121,16 +121,16 @@ export default function Dashboard() {
                 <div className="bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-medium flex items-center min-w-[60px] justify-center">
                   Failed: {failedCount}
                 </div>
-              </div>
-              <button
+            </div>
+           <button
                 className="bg-black text-white px-6 py-2 font-light tracking-wide hover:bg-gray-900 transition-colors duration-200 sm:ml-4"
-                onClick={() => {
-                  localStorage.removeItem("proskill_logged_in");
-                  router.push("/login");
-                }}
-              >
-                Logout
-              </button>
+              onClick={() => {
+                localStorage.removeItem("proskill_logged_in");
+                router.push("/login");
+              }}
+            >
+              Logout
+            </button>
             </div>
           </div>
         </div>

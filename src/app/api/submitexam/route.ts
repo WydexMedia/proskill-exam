@@ -1,3 +1,5 @@
+// import dns from "node:dns";
+// dns.setServers(['1.1.1.1']);
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import nodemailer from "nodemailer";

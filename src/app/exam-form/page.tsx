@@ -4,6 +4,48 @@ import { useEffect, useState } from "react";
 import { Button } from "antd"; // Import Ant Design Button
 import "antd/dist/reset.css"; // Import Ant Design styles if not already
 
+// Translations
+const translations = {
+  en: {
+    title: "Resin Art Exam",
+    timesUp: "Time's Up!",
+    timeExceeded: "You have exceeded the allotted time for this exam.",
+    contactTeam: "Please contact our team for further assistance.",
+    instructions: "Instructions",
+    instruction1: "• You have 20 minutes to complete this exam",
+    instruction2: "• The test will automatically close after the allotted time",
+    instruction3: "• Ensure stable internet connection",
+    instruction4: "• Do not refresh or close the browser during the exam",
+    instruction5: "• Please make sure your email address is correct, as your certificate will be sent there.",
+    goodLuck: "Good luck! — Team Proskill",
+    contactInfo: "Contact Information",
+    startExam: "START EXAM",
+    questions: "Questions",
+    submitExam: "SUBMIT EXAM",
+    enterField: "Enter your",
+    emailRequired: "Please enter your email before starting."
+  },
+  ml: {
+    title: "റെസിൻ ആർട്ട് പരീക്ഷ",
+    timesUp: "സമയം കഴിഞ്ഞു!",
+    timeExceeded: "നിങ്ങൾ ഈ പരീക്ഷയ്ക്ക് നിശ്ചിത സമയം കവിഞ്ഞു.",
+    contactTeam: "കൂടുതൽ സഹായത്തിനായി ഞങ്ങളുടെ ടീമുമായി ബന്ധപ്പെടുക.",
+    instructions: "നിർദ്ദേശങ്ങൾ",
+    instruction1: "• ഈ പരീക്ഷ പൂർത്തിയാക്കാൻ നിങ്ങൾക്ക് 20 മിനിറ്റ് സമയമുണ്ട്",
+    instruction2: "• നിശ്ചിത സമയത്തിന് ശേഷം ടെസ്റ്റ് സ്വയമേവ അടച്ചുപൂട്ടും",
+    instruction3: "• സ്ഥിരമായ ഇന്റർനെറ്റ് കണക്ഷൻ ഉറപ്പാക്കുക",
+    instruction4: "• പരീക്ഷ സമയത്ത് ബ്രൗസർ റിഫ്രഷ് ചെയ്യരുത് അല്ലെങ്കിൽ അടയ്ക്കരുത്",
+    instruction5: "• നിങ്ങളുടെ സർട്ടിഫിക്കറ്റ് അവിടെ അയയ്ക്കപ്പെടുമെന്നതിനാൽ നിങ്ങളുടെ ഇമെയിൽ വിലാസം ശരിയാണെന്ന് ഉറപ്പാക്കുക.",
+    goodLuck: "ആശംസകൾ! — പ്രോസ്കിൽ ടീം",
+    contactInfo: "ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ",
+    startExam: "പരീക്ഷ ആരംഭിക്കുക",
+    questions: "ചോദ്യങ്ങൾ",
+    submitExam: "പരീക്ഷ സമർപ്പിക്കുക",
+    enterField: "നിങ്ങളുടെ നൽകുക",
+    emailRequired: "ആരംഭിക്കുന്നതിന് മുമ്പ് നിങ്ങളുടെ ഇമെയിൽ നൽകുക."
+  }
+};
+
 interface Question {
   name: string;
   question: string;
@@ -16,6 +58,9 @@ export default function ExamForm() {
   const [isTimeOver, setIsTimeOver] = useState<boolean>(false);
   const [started, setStarted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
+  const [language, setLanguage] = useState<"en" | "ml">("en");
+
+  const t = translations[language];
 
   const handleStartNow = async (): Promise<void> => {
     const emailInput = (
@@ -23,7 +68,7 @@ export default function ExamForm() {
     )?.value;
 
     if (!emailInput) {
-      alert("Please enter your email before starting.");
+      alert(t.emailRequired);
       return;
     }
 
@@ -200,17 +245,99 @@ export default function ExamForm() {
     },
   ];
 
+  // Questions in Malayalam
+  const questionsMalayalam: Question[] = [
+    {
+      name: "resin-ingredient",
+      question: "റെസിൻ ആർട്ടിൽ ഉപയോഗിക്കുന്ന റെസിനിലെ പ്രാഥമിക ഘടകം എന്താണ്?",
+      options: ["ആക്രിലിക് പെയിന്റ്", "എപ്പോക്സി റെസിൻ", "വാട്ടർകളർ", "ക്ലേ"],
+    },
+    {
+      name: "epoxy-curing",
+      question: "എപ്പോക്സി റെസിനുമായി ചേർത്ത് ക്യൂറിംഗ് പ്രക്രിയ ആരംഭിക്കാൻ ഏത് ഘടകമാണ് ഉപയോഗിക്കുന്നത്?",
+      options: ["വെള്ളം", "ഹാർഡനർ", "ഗ്ലൂ", "ആൽക്കഹോൾ"],
+    },
+    {
+      name: "mixing-ratio",
+      question: "മിക്ക എപ്പോക്സി റെസിനുകൾക്കും ശുപാർശ ചെയ്യുന്ന മിശ്രണ അനുപാതം എന്താണ്?",
+      options: ["1:1", "2:1", "1:2", "3:1"],
+    },
+    {
+      name: "embed-material",
+      question: "ഇനിപ്പറയുന്നവയിൽ ഏതാണ് റെസിൻ ആർട്ടിൽ സുരക്ഷിതമായി എംബെഡ് ചെയ്യാൻ കഴിയുന്നത്?",
+      options: ["പുതിയ പൂക്കൾ", "ഉണങ്ങിയ പൂക്കൾ", "സീലിംഗ് ഇല്ലാത്ത പേപ്പർ", "ഐസ് ക്യൂബുകൾ"],
+    },
+    {
+      name: "heat-gun-purpose",
+      question: "റെസിൻ ആർട്ടിൽ ഹീറ്റ് ഗൺ അല്ലെങ്കിൽ ടോർച്ച് ഉപയോഗിക്കുന്നതിന്റെ പ്രധാന ഉദ്ദേശ്യം എന്താണ്?",
+      options: ["ഉണക്കൽ വേഗത്തിലാക്കാൻ", "വായു കുമിളകൾ നീക്കം ചെയ്യുക", "റെസിൻ വേഗത്തിൽ മിശ്രണം ചെയ്യുക", "റെസിൻ ഉടൻ കട്ടപിടിക്കുക"],
+    },
+    {
+      name: "jewelry-resin",
+      question: "നെക്ലസ് നിർമ്മിക്കാൻ സാധാരണയായി ഉപയോഗിക്കുന്ന റെസിൻ തരം ഏതാണ്?",
+      options: ["പോളിയുറിതെയ്ൻ റെസിൻ", "എപ്പോക്സി റെസിൻ", "യുവി റെസിൻ", "ആക്രിലിക് റെസിൻ"],
+    },
+    {
+      name: "resin-skin",
+      question: "റെസിൻ തൊലിയിൽ വീണാൽ എന്ത് ചെയ്യണം?",
+      options: ["ഉടൻ തുടച്ചുനീക്കുക", "സോപ്പും വെള്ളവും കൊണ്ട് കഴുകുക", "ഉണങ്ങിയ തുണി ഉപയോഗിച്ച് തുടച്ചുനീക്കുക", "അവഗണിച്ച് ഉണങ്ങാൻ വിടുക"],
+    },
+    {
+      name: "cure-time",
+      question: "എപ്പോക്സി റെസിൻ സാധാരണയായി പൂർണ്ണമായും ക്യൂർ ചെയ്യാൻ എത്ര സമയമെടുക്കും?",
+      options: ["30 മിനിറ്റ്", "6 മണിക്കൂർ", "24-72 മണിക്കൂർ", "1 ആഴ്ച", "12 മണിക്കൂർ"],
+    },
+    {
+      name: "curing-factor",
+      question: "എപ്പോക്സി റെസിന്റെ ക്യൂറിംഗ് സമയത്തെ ഏത് ഘടകമാണ് ബാധിക്കുന്നത്?",
+      options: ["ആർദ്രത", "താപനില", "മിശ്രണ അനുപാതം", "മുകളിലെ എല്ലാം"],
+    },
+    {
+      name: "mix-slowly",
+      question: "റെസിൻ, ഹാർഡനർ എന്നിവ സാവധാനം മിശ്രണം ചെയ്യേണ്ടത് എന്തുകൊണ്ടാണ്?",
+      options: ["അധിക കുമിളകൾ ഒഴിവാക്കാൻ", "ക്യൂറിംഗ് വേഗത്തിലാക്കാൻ", "റെസിൻ മൃദുവാക്കാൻ", "റെസിന്റെ നിറം മാറ്റാൻ"],
+    },
+    {
+      name: "too-much-pigment",
+      question: "റെസിനിൽ വളരെയധികം പിഗ്മെന്റ് ചേർത്താൽ എന്ത് സംഭവിക്കും?",
+      options: ["വേഗത്തിൽ ക്യൂർ ചെയ്യും", "ഒട്ടിപ്പിടിക്കുകയും ശരിയായി ക്യൂർ ചെയ്യാതിരിക്കുകയും ചെയ്യും", "നുരയായി മാറും", "പാരദർശകത വർദ്ധിക്കും"],
+    },
+    {
+      name: "not-safety",
+      question: "റെസിനുമായി പ്രവർത്തിക്കുമ്പോൾ ഇനിപ്പറയുന്നവയിൽ ഏതാണ് ശരിയായ സുരക്ഷാ മുൻകരുതൽ അല്ലാത്തത്?",
+      options: ["ഗ്ലൗവ്സ് ധരിക്കുക", "വായുസഞ്ചാരമുള്ള സ്ഥലത്ത് പ്രവർത്തിക്കുക", "പ്രവർത്തിക്കുമ്പോൾ ഭക്ഷണം കഴിക്കുക", "ശ്വാസകോശ മാസ്ക് ഉപയോഗിക്കുക"],
+    },
+    {
+      name: "prevent-yellowing",
+      question: "കാലക്രമേണ റെസിൻ മഞ്ഞയായി മാറുന്നത് ഒഴിവാക്കാൻ ഏറ്റവും നല്ലത് മാർഗ്ഗം എന്താണ്?",
+      options: ["ആർദ്രമായ പരിസ്ഥിതിയിൽ സൂക്ഷിക്കുക", "അധിക ഹാർഡനർ ചേർക്കുക", "യുവി-എതിർ റെസിൻ ഉപയോഗിച്ച് കലാസൃഷ്ടി സൂര്യപ്രകാശത്തിൽ നിന്ന് അകലെ സൂക്ഷിക്കുക", "ഫ്രീസറിൽ സൂക്ഷിക്കുക"],
+    },
+    {
+      name: "sticky-reason",
+      question: "72 മണിക്കൂർ കഴിഞ്ഞിട്ടും നിങ്ങളുടെ റെസിൻ ഒട്ടിപ്പിടിച്ചിരിക്കുകയാണെങ്കിൽ, സാധ്യമായ കാരണം എന്താണ്?",
+      options: ["തെറ്റായ മിശ്രണ അനുപാതം", "അധിക താപത്തിന്റെ സമ്പർക്കം", "പ്ലാസ്റ്റിക് മോൾഡ് ഉപയോഗിക്കുക", "അധിക പിഗ്മെന്റ് ചേർക്കുക"],
+    },
+    {
+      name: "best-mold",
+      question: "എപ്പോക്സി റെസിൻ ആർട്ടിന് ഏത് തരം മോൾഡാണ് ഏറ്റവും നല്ലത്?",
+      options: ["ലോഹ മോൾഡുകൾ", "സിലിക്കൺ മോൾഡുകൾ", "ഗ്ലാസ് മോൾഡുകൾ", "മര മോൾഡുകൾ"],
+    },
+  ];
+
+  // Use appropriate questions based on language
+  const currentQuestions = language === "ml" ? questionsMalayalam : questions;
+
   if (isTimeOver) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <div className="border-2 border-black p-8 text-center">
-            <h1 className="text-3xl font-bold mb-4 text-black">Time's Up!</h1>
+            <h1 className="text-3xl font-bold mb-4 text-black">{t.timesUp}</h1>
             <p className="text-lg mb-4 text-black">
-              You have exceeded the allotted time for this exam.
+              {t.timeExceeded}
             </p>
             <p className="font-medium text-black">
-              Please contact our team for further assistance.
+              {t.contactTeam}
             </p>
           </div>
         </div>
@@ -220,10 +347,19 @@ export default function ExamForm() {
 
   return (
     <div className="min-h-screen bg-white text-black">
+      {/* Language Switcher */}
+      <div className="absolute top-16 left-4 z-10 sm:top-4 sm:left-4">
+        <button
+          onClick={() => setLanguage(language === "en" ? "ml" : "en")}
+          className="px-3 py-1 text-sm border border-black bg-white text-black hover:bg-grey hover:text-white transition-colors duration-200"
+        >
+          {language === "en" ? "മലയാളം" : "English"}
+        </button>
+      </div>
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Resin Art Exam</h1>
+          <h1 className="text-4xl font-bold mb-2">{t.title}</h1>
           <div className="w-32 h-0.5 bg-black mx-auto"></div>
         </div>
 
@@ -236,22 +372,22 @@ export default function ExamForm() {
 
         {/* Instructions */}
         <div className="border-2 border-black p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">Instructions</h2>
+          <h2 className="text-xl font-bold mb-4">{t.instructions}</h2>
           <div className="space-y-2 text-sm">
-            <p>• You have 20 minutes to complete this exam</p>
-            <p>• The test will automatically close after the allotted time</p>
-            <p>• Ensure stable internet connection</p>
-            <p>• Do not refresh or close the browser during the exam</p>
-            <p>• Please make sure your email address is correct, as your certificate will be sent there.</p>
+            <p>{t.instruction1}</p>
+            <p>{t.instruction2}</p>
+            <p>{t.instruction3}</p>
+            <p>{t.instruction4}</p>
+            <p>{t.instruction5}</p>
           </div>
-          <p className="mt-4 font-medium">Good luck! — Team Proskill</p>
+          <p className="mt-4 font-medium">{t.goodLuck}</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Contact Information */}
           <div className="border-2 border-black p-6">
-            <h2 className="text-xl font-bold mb-6">Contact Information</h2>
+            <h2 className="text-xl font-bold mb-6">{t.contactInfo}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {["name", "email", "mobile", "batch", "tutor"].map((field) => (
                 <div key={field}>
@@ -264,7 +400,7 @@ export default function ExamForm() {
                     required
                     readOnly={started}
                     className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                    placeholder={`Enter your ${field}`}
+                    placeholder={`${t.enterField} ${field}`}
                   />
                 </div>
               ))}
@@ -290,7 +426,7 @@ export default function ExamForm() {
                   marginTop: 24,
                 }}
               >
-                START EXAM
+                {t.startExam}
               </Button>
             )}
           </div>
@@ -298,9 +434,9 @@ export default function ExamForm() {
           {/* Questions */}
           {started && (
             <div className="border-2 border-black p-6">
-              <h2 className="text-xl font-bold mb-6">Questions</h2>
+              <h2 className="text-xl font-bold mb-6">{t.questions}</h2>
               <div className="space-y-8">
-                {questions.map((q, index) => (
+                {currentQuestions.map((q, index) => (
                   <div key={q.name} className="border border-black p-6">
                     <h3 className="font-bold text-lg mb-4">
                       {index + 1}. {q.question} <span className="text-red-600">*</span>
@@ -343,7 +479,7 @@ export default function ExamForm() {
                     fontSize: 20,
                   }}
                 >
-                  SUBMIT EXAM
+                  {t.submitExam}
                 </Button>
               </div>
             </div>
