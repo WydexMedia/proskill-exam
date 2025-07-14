@@ -119,6 +119,101 @@ export default function ExamForm() {
     return `${m}:${s}`;
   };
 
+  // Mapping from Malayalam options to English for each question
+  const mlToEnOptionMap: Record<string, Record<string, string>> = {
+    "resin-ingredient": {
+      "ആക്രിലിക് പെയിന്റ്": "Acrylic paint",
+      "എപ്പോക്സി റെസിൻ": "Epoxy resin",
+      "വാട്ടർകളർ": "Watercolor",
+      "ക്ലേ": "Clay",
+    },
+    "epoxy-curing": {
+      "വെള്ളം": "Water",
+      "ഹാർഡനർ": "Hardener",
+      "ഗ്ലൂ": "Glue",
+      "ആൽക്കഹോൾ": "Alcohol",
+    },
+    "mixing-ratio": {
+      "1:1": "1:1",
+      "2:1": "2:1",
+      "1:2": "1:2",
+      "3:1": "3:1",
+    },
+    "embed-material": {
+      "പുതിയ പൂക്കൾ": "Fresh flowers",
+      "ഉണങ്ങിയ പൂക്കൾ": "Dried flowers",
+      "സീലിംഗ് ഇല്ലാത്ത പേപ്പർ": "Paper without sealing",
+      "ഐസ് ക്യൂബുകൾ": "Ice cubes",
+    },
+    "heat-gun-purpose": {
+      "ഉണക്കൽ വേഗത്തിലാക്കാൻ": "Speed up drying",
+      "വായു കുമിളകൾ നീക്കം ചെയ്യുക": "Remove air bubbles",
+      "റെസിൻ വേഗത്തിൽ മിശ്രണം ചെയ്യുക": "Mix the resin faster",
+      "റെസിൻ ഉടൻ കട്ടപിടിക്കുക": "Harden the resin instantly",
+    },
+    "jewelry-resin": {
+      "പോളിയുറിതെയ്ൻ റെസിൻ": "Polyurethane resin",
+      "എപ്പോക്സി റെസിൻ": "Epoxy resin",
+      "യുവി റെസിൻ": "UV Resin",
+      "ആക്രിലിക് റെസിൻ": "Acrylic resin",
+    },
+    "resin-skin": {
+      "ഉടൻ തുടച്ചുനീക്കുക": "Rub it off immediately",
+      "സോപ്പും വെള്ളവും കൊണ്ട് കഴുകുക": "Wash with soap and water",
+      "ഉണങ്ങിയ തുണി ഉപയോഗിച്ച് തുടച്ചുനീക്കുക": "Use a dry cloth to wipe it off",
+      "അവഗണിച്ച് ഉണങ്ങാൻ വിടുക": "Ignore it and let it dry",
+    },
+    "cure-time": {
+      "30 മിനിറ്റ്": "30 minutes",
+      "6 മണിക്കൂർ": "6 hours",
+      "24-72 മണിക്കൂർ": "24-72 hours",
+      "1 ആഴ്ച": "1 week",
+      "12 മണിക്കൂർ": "12 hours",
+    },
+    "curing-factor": {
+      "ആർദ്രത": "Humidity",
+      "താപനില": "Temperature",
+      "മിശ്രണ അനുപാതം": "Mixing ratio",
+      "മുകളിലെ എല്ലാം": "All of the above",
+    },
+    "mix-slowly": {
+      "അധിക കുമിളകൾ ഒഴിവാക്കാൻ": "To prevent excess bubbles",
+      "ക്യൂറിംഗ് വേഗത്തിലാക്കാൻ": "To speed up curing",
+      "റെസിൻ മൃദുവാക്കാൻ": "To make the resin softer",
+      "റെസിന്റെ നിറം മാറ്റാൻ": "To change the resin color",
+    },
+    "too-much-pigment": {
+      "വേഗത്തിൽ ക്യൂർ ചെയ്യും": "It cures faster",
+      "ഒട്ടിപ്പിടിക്കുകയും ശരിയായി ക്യൂർ ചെയ്യാതിരിക്കുകയും ചെയ്യും": "It becomes sticky and doesn't cure properly",
+      "നുരയായി മാറും": "It turns into foam",
+      "പാരദർശകത വർദ്ധിക്കും": "It increases transparency",
+    },
+    "not-safety": {
+      "ഗ്ലൗവ്സ് ധരിക്കുക": "Wearing gloves",
+      "വായുസഞ്ചാരമുള്ള സ്ഥലത്ത് പ്രവർത്തിക്കുക": "Working in a ventilated area",
+      "പ്രവർത്തിക്കുമ്പോൾ ഭക്ഷണം കഴിക്കുക": "Eating while working",
+      "ശ്വാസകോശ മാസ്ക് ഉപയോഗിക്കുക": "Using a respirator mask",
+    },
+    "prevent-yellowing": {
+      "ആർദ്രമായ പരിസ്ഥിതിയിൽ സൂക്ഷിക്കുക": "Store it in a humid environment",
+      "അധിക ഹാർഡനർ ചേർക്കുക": "Add extra hardener",
+      "യുവി-എതിർ റെസിൻ ഉപയോഗിച്ച് കലാസൃഷ്ടി സൂര്യപ്രകാശത്തിൽ നിന്ന് അകലെ സൂക്ഷിക്കുക": "Use UV-resistant resin and store artwork away from sunlight",
+      "ഫ്രീസറിൽ സൂക്ഷിക്കുക": "Keep it in the freezer",
+    },
+    "sticky-reason": {
+      "തെറ്റായ മിശ്രണ അനുപാതം": "Incorrect mixing ratio",
+      "അധിക താപത്തിന്റെ സമ്പർക്കം": "Too much heat exposure",
+      "പ്ലാസ്റ്റിക് മോൾഡ് ഉപയോഗിക്കുക": "Using a plastic mold",
+      "അധിക പിഗ്മെന്റ് ചേർക്കുക": "Adding extra pigment",
+    },
+    "best-mold": {
+      "ലോഹ മോൾഡുകൾ": "Metal molds",
+      "സിലിക്കൺ മോൾഡുകൾ": "Silicone molds",
+      "ഗ്ലാസ് മോൾഡുകൾ": "Glass molds",
+      "മര മോൾഡുകൾ": "Wood molds",
+    },
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setSubmitting(true); // Show loader
@@ -134,7 +229,11 @@ export default function ExamForm() {
         key !== "batch" &&
         key !== "tutor"
       ) {
-        answers[key] = value as string;
+        if (language === "ml" && mlToEnOptionMap[key] && mlToEnOptionMap[key][value as string]) {
+          answers[key] = mlToEnOptionMap[key][value as string];
+        } else {
+          answers[key] = value as string;
+        }
       }
     }
 
