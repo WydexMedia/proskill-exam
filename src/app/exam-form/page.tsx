@@ -41,7 +41,7 @@ const translations = {
     startExam: "പരീക്ഷ ആരംഭിക്കുക",
     questions: "ചോദ്യങ്ങൾ",
     submitExam: "പരീക്ഷ സമർപ്പിക്കുക",
-    enterField: "നിങ്ങളുടെ നൽകുക",
+    enterField: "നിങ്ങളുടെ ",
     emailRequired: "ആരംഭിക്കുന്നതിന് മുമ്പ് നിങ്ങളുടെ ഇമെയിൽ നൽകുക."
   }
 };

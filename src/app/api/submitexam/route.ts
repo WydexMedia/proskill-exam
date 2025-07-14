@@ -74,11 +74,37 @@ async function generateCertificatePDF(name: string, tutor: string, dateStr: stri
     return pdfBytes;
 }
 
+// Helper to render answers as HTML table
+function renderAnswersTable(answers: Record<string, string>) {
+  return `
+    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin-top:16px; font-size:15px;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th>Question</th>
+          <th>Your Answer</th>
+       
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.keys(answers).map(key => `
+          <tr>
+            <td>${key}</td>
+            <td>${answers[key] || "-"}</td>
+          
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
 async function sendCertificateEmail(
     name: string,
     email: string,
     tutor: string,
-    dateStr: string
+    dateStr: string,
+    answers: Record<string, string>,
+   
 ) {
     const certBuffer = await generateCertificatePDF(name, tutor, dateStr);
 
@@ -122,6 +148,10 @@ Team Proskill
           Date: ${dateStr}
         </p>
         <p style="font-size:16px; line-height:1.6;">
+          <strong>Your Answers:</strong>
+        </p>
+        ${renderAnswersTable(answers)}
+        <p style="font-size:16px; line-height:1.6; margin-top:16px;">
           Your certificate is attached to this email. Keep it as a record of your achievement.
         </p>
         <div style="margin:24px 0; text-align:center;">
@@ -148,7 +178,7 @@ Team Proskill
 }
 
 
-async function sendFailureEmail(name: string, email: string) {
+async function sendFailureEmail(name: string, email: string, answers: Record<string, string>) {
     await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
@@ -188,6 +218,10 @@ All the best!
         <p style="font-size: 16px; line-height: 1.6;">
           We encourage you to review the classes provided and give it your best in the second attempt.
         </p>
+        <p style="font-size: 16px; line-height: 1.6;">
+          <strong>Your Answers:</strong>
+        </p>
+        ${renderAnswersTable(answers)}
         <p style="font-size: 16px; line-height: 1.6;">
           If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group. Our team is here to support your success.
         </p>
@@ -251,9 +285,9 @@ export async function POST(req: Request) {
         let certBuffer = null;
         if (passed) {
             certBuffer = await generateCertificatePDF(data.name, data.tutor, dateStr);
-            await sendCertificateEmail(data.name, data.email, data.tutor, dateStr);
+            await sendCertificateEmail(data.name, data.email, data.tutor, dateStr, data.answers);
         } else {
-            await sendFailureEmail(data.name, data.email);
+            await sendFailureEmail(data.name, data.email, data.answers);
         }
 
         const client = await clientPromise;
