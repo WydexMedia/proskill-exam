@@ -115,7 +115,7 @@ Name: ${name}
 Tutor: ${tutor}
 Date: ${dateStr}
 
-We are proud to have you as part of our learning community.
+We are proud to have you as part of our learning community..
 
 All the best,
 Team Proskill
