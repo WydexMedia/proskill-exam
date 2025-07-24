@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-async function generateCertificatePDF(name: string, tutor: string, dateStr: string) {
+async function generateCertificatePDF(name: string, dateStr: string) {
     // Load background image
     const certImagePath = path.join(process.cwd(), "public/certificate.jpg");
     const certImageBytes = fs.readFileSync(certImagePath);
@@ -53,17 +53,10 @@ async function generateCertificatePDF(name: string, tutor: string, dateStr: stri
     });
 
     // Tutor name
-    page.drawText(tutor, {
-        x: 170,
-        y: 18,
-        size: 20,
-        font,
-        color: rgb(0, 0, 0),
-    });
-
+  
     // Current date (passed as argument)
     page.drawText(dateStr, {
-        x: 372,
+        x: 170,
         y: 18,
         size: 18,
         font,
@@ -106,7 +99,7 @@ async function sendCertificateEmail(
     answers: Record<string, string>,
    
 ) {
-    const certBuffer = await generateCertificatePDF(name, tutor, dateStr);
+    const certBuffer = await generateCertificatePDF(name, dateStr);
 
     await transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -284,7 +277,7 @@ export async function POST(req: Request) {
         // Send email if passed or failed
         let certBuffer = null;
         if (passed) {
-            certBuffer = await generateCertificatePDF(data.name, data.tutor, dateStr);
+            certBuffer = await generateCertificatePDF(data.name, dateStr);
             await sendCertificateEmail(data.name, data.email, data.tutor, dateStr, data.answers);
         } else {
             await sendFailureEmail(data.name, data.email, data.answers);
