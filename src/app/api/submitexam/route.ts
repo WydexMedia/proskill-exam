@@ -45,8 +45,8 @@ async function generateCertificatePDF(name: string, dateStr: string) {
 
     // Student name
     page.drawText(name, {
-        x: 260,
-        y: 300,
+        x: 350,
+        y: 200,
         size: 36,
         font,
         color: rgb(0, 0, 0),
@@ -56,8 +56,8 @@ async function generateCertificatePDF(name: string, dateStr: string) {
   
     // Current date (passed as argument)
     page.drawText(dateStr, {
-        x: 170,
-        y: 18,
+        x: 255,
+        y: 70,
         size: 18,
         font,
         color: rgb(0, 0, 0),
