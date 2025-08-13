@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { ShieldCheckIcon, BoltIcon, GlobeAltIcon } from "@heroicons/react/24/solid";
-import { useState } from 'react';
+import { ShieldCheckIcon, BoltIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { useState, useEffect } from 'react';
 
 // Translations
 const translations = {
@@ -11,6 +11,14 @@ const translations = {
     welcome: "Welcome to",
     subtitle: "Your gateway to seamless online examinations. Take tests, track progress, and achieve your academic goals.",
     startExam: "Start Exam",
+    resinExam: "Resin Art Exam",
+    mehndiExam: "Mehndi Art Exam",
+    oceanExam: "Ocean Theme Exam",
+    enterCode: "Enter exam code",
+    submit: "Submit",
+    cancel: "Cancel",
+    invalidCode: "Invalid code",
+    comingSoon: "Ocean Theme exam is coming soon.",
     secureTesting: "Secure Testing",
     secureTestingDesc: "Advanced security measures ensure fair and reliable examinations",
     instantResults: "Instant Results",
@@ -29,6 +37,14 @@ const translations = {
     welcome: "സ്വാഗതം",
     subtitle: "നിങ്ങളുടെ നിരുപാധികമായ ഓൺലൈൻ പരീക്ഷകളുടെ വാതിൽ. പരീക്ഷകൾ എഴുതുക, പുരോഗതി ട്രാക്ക് ചെയ്യുക, നിങ്ങളുടെ അക്കാദമിക ലക്ഷ്യങ്ങൾ കൈവരിക്കുക.",
     startExam: "പരീക്ഷ ആരംഭിക്കുക",
+    resinExam: "റെസിൻ ആർട്ട് പരീക്ഷ",
+    mehndiExam: "മെഹന്തി ആർട്ട് പരീക്ഷ",
+    oceanExam: "ഒഷ്യൻ തീം പരീക്ഷ",
+    enterCode: "പരീക്ഷ കോഡ് നൽകുക",
+    submit: "സമർപ്പിക്കുക",
+    cancel: "റദ്ദാക്കുക",
+    invalidCode: "തെറ്റായ കോഡ്",
+    comingSoon: "ഒഷ്യൻ തീം പരീക്ഷ ഉടൻ വരുന്നു.",
     secureTesting: "സുരക്ഷിതമായ പരീക്ഷണം",
     secureTestingDesc: "വിപുലമായ സുരക്ഷാ നടപടികൾ നീതിയുള്ളതും വിശ്വസനീയവുമായ പരീക്ഷകൾ ഉറപ്പാക്കുന്നു",
     instantResults: "തൽക്ഷണ ഫലങ്ങൾ",
@@ -46,8 +62,44 @@ const translations = {
 export default function Home() {
   const router = useRouter();
   const [language, setLanguage] = useState<"en" | "ml">("en");
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
+  const [activeExam, setActiveExam] = useState<null | 'resin' | 'mehndi'>(null);
+  const [examCodeInput, setExamCodeInput] = useState('');
+  const [toast, setToast] = useState<null | { message: string; type: 'error' | 'info' }>(null);
+  const [isToastVisible, setIsToastVisible] = useState(false);
 
   const t = translations[language];
+
+  const showToast = (message: string, type: 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+    setIsToastVisible(true);
+    setTimeout(() => {
+      setIsToastVisible(false);
+      setTimeout(() => setToast(null), 300);
+    }, 3000);
+  };
+
+  const openCodeModal = (type: 'resin' | 'mehndi') => {
+    setActiveExam(type);
+    setExamCodeInput('');
+    setIsCodeModalOpen(true);
+  };
+
+  const submitCode = () => {
+    if (!activeExam) return;
+    const code = examCodeInput.trim();
+    if (activeExam === 'resin' && code === 'PRORESIN2025') {
+      setIsCodeModalOpen(false);
+      router.push('/exam-form');
+      return;
+    }
+    if (activeExam === 'mehndi' && code === 'MEHANDIPRO2025') {
+      setIsCodeModalOpen(false);
+      router.push('/mehandi-exam');
+      return;
+    }
+    showToast(t.invalidCode, 'error');
+  };
 
   const handleExamFormClick = () => {
     router.push("/exam-form");
@@ -55,6 +107,39 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ease-in-out transform ${
+          isToastVisible ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-2 opacity-0 scale-95'
+        }`}>
+          <div className={`flex items-center space-x-3 px-6 py-4 rounded-lg shadow-lg border-l-4 ${
+            toast.type === 'error' 
+              ? 'bg-red-50 border-red-500 text-red-800' 
+              : 'bg-blue-50 border-blue-500 text-blue-800'
+          }`}>
+            <div className={`flex-shrink-0 ${toast.type === 'error' ? 'text-red-500' : 'text-blue-500'}`}>
+              {toast.type === 'error' ? (
+                <ExclamationTriangleIcon className="w-5 h-5" />
+              ) : (
+                <CheckCircleIcon className="w-5 h-5" />
+              )}
+            </div>
+            <div className="flex-1 text-sm font-medium">
+              {toast.message}
+            </div>
+            <button
+              onClick={() => {
+                setIsToastVisible(false);
+                setTimeout(() => setToast(null), 300);
+              }}
+              className={`flex-shrink-0 p-1 rounded-full hover:bg-opacity-20 transition-colors ${
+                toast.type === 'error' ? 'hover:bg-red-500' : 'hover:bg-blue-500'
+              }`}
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="border-b border-black">
         <div className="max-w-6xl mx-auto px-8 py-6">
@@ -88,14 +173,59 @@ export default function Home() {
             {t.subtitle}
           </p>
 
-          <div className="space-y-4 sm:space-y-0 sm:space-x-6 sm:flex sm:justify-center">
+          {/* Exam Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
             <button
-              onClick={handleExamFormClick}
-              className="bg-black text-white px-8 py-4 text-lg font-medium hover:bg-gray-800 transition-colors border-2 border-black w-full sm:w-auto"
+              onClick={() => openCodeModal('resin')}
+              className="bg-black text-white px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
             >
-              {t.startExam}
+              {t.resinExam}
+            </button>
+            <button
+              onClick={() => openCodeModal('mehndi')}
+              className="bg-black text-white px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
+            >
+              {t.mehndiExam}
+            </button>
+            <button
+              onClick={() => showToast(t.comingSoon, 'info')}
+              className="bg-black text-white px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
+            >
+              {t.oceanExam}
             </button>
           </div>
+
+          {/* Code Modal */}
+          {isCodeModalOpen && (
+            <div className="fixed inset-0 z-40 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setIsCodeModalOpen(false)}></div>
+              <div className="relative bg-white border border-black p-6 w-full max-w-md mx-4 z-50">
+                <h3 className="text-lg font-semibold mb-4 text-black">{t.enterCode}</h3>
+                <input
+                  type="text"
+                  value={examCodeInput}
+                  onChange={(e) => setExamCodeInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') submitCode(); }}
+                  className="w-full border border-black px-3 py-2 text-black focus:outline-none"
+                  autoFocus
+                />
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    className="px-4 py-2 border border-black text-black hover:bg-gray-100"
+                    onClick={() => setIsCodeModalOpen(false)}
+                  >
+                    {t.cancel}
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-black text-white hover:bg-gray-800"
+                    onClick={submitCode}
+                  >
+                    {t.submit}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Features */}
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">

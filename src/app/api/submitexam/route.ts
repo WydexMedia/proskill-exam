@@ -67,7 +67,7 @@ async function generateCertificatePDF(name: string, dateStr: string) {
     return pdfBytes;
 }
 
-// Helper to render answers as HTML table
+// Helper to render answers as HTML table (only attended answers)
 function renderAnswersTable(answers: Record<string, string>) {
   return `
     <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin-top:16px; font-size:15px;">
@@ -75,7 +75,6 @@ function renderAnswersTable(answers: Record<string, string>) {
         <tr style="background:#f5f5f5;">
           <th>Question</th>
           <th>Your Answer</th>
-       
         </tr>
       </thead>
       <tbody>
@@ -83,7 +82,6 @@ function renderAnswersTable(answers: Record<string, string>) {
           <tr>
             <td>${key}</td>
             <td>${answers[key] || "-"}</td>
-          
           </tr>
         `).join('')}
       </tbody>
@@ -96,141 +94,62 @@ async function sendCertificateEmail(
     email: string,
     tutor: string,
     dateStr: string,
-    answers: Record<string, string>,
-   
+    answers: Record<string, string>
 ) {
-    const certBuffer = await generateCertificatePDF(name, dateStr);
+  const certBuffer = await generateCertificatePDF(name, dateStr);
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "🎓 Congratulations! You Passed the Exam",
-        text: `Dear ${name},
-
-Congratulations on successfully passing your exam!
-
-Please find your certificate attached.
-
-Name: ${name}
-Tutor: ${tutor}
-Date: ${dateStr}
-
-We are proud to have you as part of our learning community..
-
-All the best,
-Team Proskill
-`,
-        html: `
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "🎓 Congratulations! You Passed the Exam",
+    text: `Dear ${name},\n\nCongratulations on successfully passing your exam!\n\nPlease find your certificate attached.\n\nName: ${name}\nTutor: ${tutor}\nDate: ${dateStr}\n\nWe are proud to have you as part of our learning community.\n\nAll the best,\nTeam Proskill\n`,
+    html: `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #ddd; background:#ffffff; color:#333;">
-        <h2 style="color:#000000; font-size:22px; margin-bottom:16px;">
-          🎓 Congratulations! You Passed the Exam
-        </h2>
-        <p style="font-size:16px; line-height:1.6;">
-          Dear <strong>${name}</strong>,
-        </p>
-        <p style="font-size:16px; line-height:1.6;">
-          Congratulations on successfully completing your examination with <strong>Proskill</strong>!
-        </p>
-        <p style="font-size:16px; line-height:1.6;">
-          You have demonstrated dedication and skill in mastering the material.
-        </p>
-        <p style="font-size:16px; line-height:1.6;">
-          <strong>Exam Details:</strong><br>
-          Name: ${name}<br>
-          Tutor: ${tutor}<br>
-          Date: ${dateStr}
-        </p>
-        <p style="font-size:16px; line-height:1.6;">
-          <strong>Your Answers:</strong>
-        </p>
+        <h2 style="color:#000000; font-size:22px; margin-bottom:16px;">🎓 Congratulations! You Passed the Exam</h2>
+        <p style="font-size:16px; line-height:1.6;">Dear <strong>${name}</strong>,</p>
+        <p style="font-size:16px; line-height:1.6;">Congratulations on successfully completing your examination with <strong>Proskill</strong>!</p>
+        <p style="font-size:16px; line-height:1.6;">You have demonstrated dedication and skill in mastering the material.</p>
+        <p style="font-size:16px; line-height:1.6;"><strong>Exam Details:</strong><br> Name: ${name}<br> Tutor: ${tutor}<br> Date: ${dateStr}</p>
+        <p style="font-size:16px; line-height:1.6;"><strong>Your Answers:</strong></p>
         ${renderAnswersTable(answers)}
-        <p style="font-size:16px; line-height:1.6; margin-top:16px;">
-          Your certificate is attached to this email. Keep it as a record of your achievement.
-        </p>
-        <div style="margin:24px 0; text-align:center;">
-          <a href="https://calculator.proskilledu.com/testimonial" style="background:#000000; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:4px; font-weight:bold; display:inline-block;">
-            Visit Your Success Stories
-          </a>
-        </div>
-        <p style="font-size:16px; line-height:1.6;">
-          We are proud to have you as part of our learning community and look forward to seeing you achieve even more.
-        </p>
-        <p style="font-size:16px; line-height:1.6; margin-top:24px;">
-          All the best!<br>
-          — Team Proskill
-        </p>
+        <p style="font-size:16px; line-height:1.6; margin-top:16px;">Your certificate is attached to this email. Keep it as a record of your achievement.</p>
+        <div style="margin:24px 0; text-align:center;"><a href="https://calculator.proskilledu.com/testimonial" style="background:#000000; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:4px; font-weight:bold; display:inline-block;">Visit Your Success Stories</a></div>
+        <p style="font-size:16px; line-height:1.6;">We are proud to have you as part of our learning community and look forward to seeing you achieve even more.</p>
+        <p style="font-size:16px; line-height:1.6; margin-top:24px;">All the best!<br> — Team Proskill</p>
       </div>
     `,
-        attachments: [
-            {
-                filename: "certificate.pdf",
-                content: Buffer.from(certBuffer),
-            },
-        ],
-    });
+    attachments: [
+      { filename: "certificate.pdf", content: Buffer.from(certBuffer) }
+    ],
+  });
 }
 
-
-async function sendFailureEmail(name: string, email: string, answers: Record<string, string>) {
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "Opportunity to Improve Your Exam Score",
-        text: `Dear ${name},
-
-Thank you for completing your recent examination with Proskill.
-
-We noticed that your score didn’t meet the expected level. But don’t worry—you still have the opportunity to improve!
-
-You are allowed one more attempt within the next 24 hours.
-
-We encourage you to review the classes provided and give it your best in the second attempt.
-
-If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group.
-
-Proskill is proud to have you as part of our learning community.
-
-All the best!
-— Team Proskill
-`,
-        html: `
+async function sendFailureEmail(
+  name: string,
+  email: string,
+  answers: Record<string, string>
+) {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Opportunity to Improve Your Exam Score",
+    text: `Dear ${name},\n\nThank you for completing your recent examination with Proskill.\n\nWe noticed that your score didn’t meet the expected level. But don’t worry—you still have the opportunity to improve!\n\nYou are allowed one more attempt within the next 24 hours.\n\nWe encourage you to review the classes provided and give it your best in the second attempt.\n\nIf you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group.\n\nProskill is proud to have you as part of our learning community.\n\nAll the best!\n— Team Proskill\n`,
+    html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #ddd; background: #ffffff; color: #333;">
         <h2 style="color: #000000; font-size: 22px; margin-bottom: 16px;">Opportunity to Improve Your Exam Score</h2>
-        <p style="font-size: 16px; line-height: 1.6;">
-          Dear <strong>${name}</strong>,
-        </p>
-        <p style="font-size: 16px; line-height: 1.6;">
-          Thank you for completing your recent examination with <strong>Proskill</strong> as part of your online course.
-        </p>
-        <p style="font-size: 16px; line-height: 1.6;">
-          We noticed that your score in this attempt didn’t meet the expected level. But don’t worry — you still have the opportunity to improve!
-        </p>
-        <p style="font-size: 16px; line-height: 1.6;">
-          You are allowed <strong>one more attempt within the next 24 hours.</strong>
-        </p>
-        <p style="font-size: 16px; line-height: 1.6;">
-          We encourage you to review the classes provided and give it your best in the second attempt.
-        </p>
-        <p style="font-size: 16px; line-height: 1.6;">
-          <strong>Your Answers:</strong>
-        </p>
+        <p style="font-size: 16px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
+        <p style="font-size: 16px; line-height: 1.6;">Thank you for completing your recent examination with <strong>Proskill</strong> as part of your online course.</p>
+        <p style="font-size: 16px; line-height: 1.6;">We noticed that your score in this attempt didn’t meet the expected level. But don’t worry — you still have the opportunity to improve!</p>
+        <p style="font-size: 16px; line-height: 1.6;">You are allowed <strong>one more attempt within the next 24 hours.</strong></p>
+        <p style="font-size: 16px; line-height: 1.6;"><strong>Your Answers:</strong></p>
         ${renderAnswersTable(answers)}
-        <p style="font-size: 16px; line-height: 1.6;">
-          If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group. Our team is here to support your success.
-        </p>
-        <div style="margin: 24px 0; text-align: center;">
-          <a href="https://calculator.proskilledu.com/testimonial" style="background: #000000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Visit our success Stories</a>
-        </div>
-        <p style="font-size: 16px; line-height: 1.6;">
-          Proskill is proud to have you as part of our learning community, and we believe in your potential to do even better.
-        </p>
-        <p style="font-size: 16px; line-height: 1.6; margin-top: 24px;">
-          All the best!<br>
-          — Team Proskill
-        </p>
+        <p style="font-size: 16px; line-height: 1.6;">If you have any doubts, feel free to connect with your trainer through your course’s WhatsApp group. Our team is here to support your success.</p>
+        <div style="margin: 24px 0; text-align: center;"><a href="https://calculator.proskilledu.com/testimonial" style="background: #000000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Visit our success Stories</a></div>
+        <p style="font-size: 16px; line-height: 1.6;">Proskill is proud to have you as part of our learning community, and we believe in your potential to do even better.</p>
+        <p style="font-size: 16px; line-height: 1.6; margin-top: 24px;">All the best!<br> — Team Proskill</p>
       </div>
     `,
-    });
+  });
 }
 
 
