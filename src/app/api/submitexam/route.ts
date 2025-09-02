@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import * as fontkit from 'fontkit';
+import { generateCertificatePDF, normalizeNameForCursive } from "@/lib/certificate";
 
 
 
@@ -99,20 +100,21 @@ async function sendCertificateEmail(
     dateStr: string,
     answers: Record<string, string>
 ) {
-  const certBuffer = await generateCertificatePDF(name, dateStr);
+    const displayName = normalizeNameForCursive(name);
+  const certBuffer = await generateCertificatePDF(displayName, dateStr);
 
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
     subject: "🎓 Congratulations! You Passed the Exam",
-    text: `Dear ${name},\n\nCongratulations on successfully passing your exam!\n\nPlease find your certificate attached.\n\nName: ${name}\nTutor: ${tutor}\nDate: ${dateStr}\n\nWe are proud to have you as part of our learning community.\n\nAll the best,\nTeam Proskill\n`,
+    text: `Dear ${displayName},\n\nCongratulations on successfully passing your exam!\n\nPlease find your certificate attached.\n\nName: ${displayName}\nTutor: ${tutor}\nDate: ${dateStr}\n\nWe are proud to have you as part of our learning community.\n\nAll the best,\nTeam Proskill\n`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:24px; border:1px solid #ddd; background:#ffffff; color:#333;">
         <h2 style="color:#000000; font-size:22px; margin-bottom:16px;">🎓 Congratulations! You Passed the Exam</h2>
-        <p style="font-size:16px; line-height:1.6;">Dear <strong>${name}</strong>,</p>
+        <p style="font-size:16px; line-height:1.6;">Dear <strong>${displayName}</strong>,</p>
         <p style="font-size:16px; line-height:1.6;">Congratulations on successfully completing your examination with <strong>Proskill</strong>!</p>
         <p style="font-size:16px; line-height:1.6;">You have demonstrated dedication and skill in mastering the material.</p>
-        <p style="font-size:16px; line-height:1.6;"><strong>Exam Details:</strong><br> Name: ${name}<br> Tutor: ${tutor}<br> Date: ${dateStr}</p>
+        <p style="font-size:16px; line-height:1.6;"><strong>Exam Details:</strong><br> Name: ${displayName}<br> Tutor: ${tutor}<br> Date: ${dateStr}</p>
         <p style="font-size:16px; line-height:1.6;"><strong>Your Answers:</strong></p>
         ${renderAnswersTable(answers)}
         <p style="font-size:16px; line-height:1.6; margin-top:16px;">Your certificate is attached to this email. Keep it as a record of your achievement.</p>

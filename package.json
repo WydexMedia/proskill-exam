@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gen:cert": "tsx ./test-generate-certificate.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -27,6 +28,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "tsx": "^4.16.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
