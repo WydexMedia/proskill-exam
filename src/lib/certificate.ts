@@ -47,8 +47,12 @@ export async function generateCertificatePDF(name: string, dateStr: string) {
   const cursiveFont = await pdfDoc.embedFont(customFontBytes);
 
   const safeName = normalizeNameForCursive(name);
+  const textWidth = cursiveFont.widthOfTextAtSize(safeName, 28);
+  const pageWidth = 842;
+  const centerX = (pageWidth - textWidth) / 2;
+  
   page.drawText(safeName, {
-    x: 350,
+    x: centerX,
     y: 200,
     size: 28,
     font: cursiveFont,
