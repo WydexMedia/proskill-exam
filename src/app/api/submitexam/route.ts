@@ -121,7 +121,7 @@ export async function POST(req: Request) {
         const correctAnswers = {
             "resin-ingredient": "Epoxy resin",
             "epoxy-curing": "Hardener",
-            "mixing-ratio": "1:1",
+            "mixing-ratio": "3:1",
             "embed-material": "Dried flowers",
             "heat-gun-purpose": "Remove air bubbles",
             "jewelry-resin": "UV Resin",
