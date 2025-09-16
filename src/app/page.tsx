@@ -63,7 +63,7 @@ export default function Home() {
   const router = useRouter();
   const [language, setLanguage] = useState<"en" | "ml">("en");
   const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
-  const [activeExam, setActiveExam] = useState<null | 'resin' | 'mehndi'>(null);
+  const [activeExam, setActiveExam] = useState<null | 'resin' | 'mehndi' | "ocean">(null);
   const [examCodeInput, setExamCodeInput] = useState('');
   const [toast, setToast] = useState<null | { message: string; type: 'error' | 'info' }>(null);
   const [isToastVisible, setIsToastVisible] = useState(false);
@@ -79,7 +79,7 @@ export default function Home() {
     }, 3000);
   };
 
-  const openCodeModal = (type: 'resin' | 'mehndi') => {
+  const openCodeModal = (type: 'resin' | 'mehndi' | 'ocean') => {
     setActiveExam(type);
     setExamCodeInput('');
     setIsCodeModalOpen(true);
@@ -90,12 +90,20 @@ export default function Home() {
     const code = examCodeInput.trim();
     if (activeExam === 'resin' && code === 'PRORESIN2025') {
       setIsCodeModalOpen(false);
+      sessionStorage.setItem("type","resin")
       router.push('/exam-form');
       return;
     }
     if (activeExam === 'mehndi' && code === 'MEHANDIPRO2025') {
       setIsCodeModalOpen(false);
+      sessionStorage.setItem("type","mehandi")
       router.push('/mehandi-exam');
+      return;
+    }
+    if(activeExam === 'ocean' && code === "OCEANPRO2025"){
+      setIsCodeModalOpen(false);
+      sessionStorage.setItem("type","ocean")
+      router.push('/ocean-exam');
       return;
     }
     showToast(t.invalidCode, 'error');
@@ -188,7 +196,7 @@ export default function Home() {
               {t.mehndiExam}
             </button>
             <button
-              onClick={() => showToast(t.comingSoon, 'info')}
+              onClick={() => openCodeModal('ocean')}
               className="bg-black text-white px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
             >
               {t.oceanExam}
