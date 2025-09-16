@@ -36,7 +36,7 @@ export async function GET() {
       ? Buffer.from(s.certificate.buffer).toString("base64")
       : null,
 
-  }));
+    }));
 
   return NextResponse.json({ submissions: mapped });
 }

@@ -136,7 +136,7 @@ export async function POST(req: Request) {
 
     let score = 0;
     for (const [key, correct] of Object.entries(correctAnswers)) {
-      if (data.answers[key] === correct) score++;
+      if (data.answers[key] === correct){score++} ;
     }
 
     const passed = score >= 12;
@@ -157,6 +157,7 @@ export async function POST(req: Request) {
     const db = client.db("examDB");
 
     await db.collection("examSubmissions").insertOne({
+      type:data.type,
       name: data.name,
       email: data.email,
       mobile: data.mobile,

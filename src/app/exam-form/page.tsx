@@ -238,6 +238,7 @@ export default function ExamForm() {
     }
 
     const payload = {
+      type:"resin",
       name: formData.get("name"),
       email: formData.get("email"),
       mobile: formData.get("mobile"),

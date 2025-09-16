@@ -200,6 +200,7 @@ export default function MehndiExam() {
     }
 
     const payload = {
+      type:"mehandi",
       name: formData.get("name"),
       email: formData.get("email"),
       mobile: formData.get("mobile"),
