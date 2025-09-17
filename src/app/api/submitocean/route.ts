@@ -174,7 +174,12 @@ export async function POST(req: Request) {
             submittedAt: new Date(),
         });
 
-        return NextResponse.json({ success: true })
+        return NextResponse.json({ 
+            success: true, 
+            score, 
+            passed, 
+            type: data.type 
+        })
     }
     catch (err) {
         console.log(err)
