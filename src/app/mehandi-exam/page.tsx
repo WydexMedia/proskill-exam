@@ -219,7 +219,7 @@ export default function MehndiExam() {
 
     if (result.success) {
       if (result.passed) {
-        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}`;
+        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${result.type}`;
       } else {
         window.location.href = `/exam/failure?score=${result.score}&name=${payload.name}`;
       }

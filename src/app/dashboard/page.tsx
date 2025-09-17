@@ -52,7 +52,8 @@ export default function Dashboard() {
         s.email.toLowerCase().includes(q) ||
         s.mobile.toLowerCase().includes(q) ||
         s.batch.toLowerCase().includes(q) ||
-        s.tutor.toLowerCase().includes(q)
+        s.tutor.toLowerCase().includes(q) ||
+        s.score.toString() === q
       );
     }
     return true;

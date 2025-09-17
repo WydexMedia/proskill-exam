@@ -7,7 +7,7 @@ import "antd/dist/reset.css"
 // Translations
 const translations = {
     en: {
-        title: "Mehndi Art Exam",
+        title: "Ocean Art Exam",
         timesUp: "Time's Up!",
         timeExceeded: "You have exceeded the allotted time for this exam.",
         contactTeam: "Please contact our team for further assistance.",
@@ -26,7 +26,7 @@ const translations = {
         emailRequired: "Please enter your email before starting."
     },
     ml: {
-        title: "മെഹന്തി ആർട്ട് പരീക്ഷ",
+        title: " ആർട്ട് പരീക്ഷ",
         timesUp: "സമയം കഴിഞ്ഞു!",
         timeExceeded: "നിങ്ങൾ ഈ പരീക്ഷയ്ക്ക് നിശ്ചിത സമയം കവിഞ്ഞു.",
         contactTeam: "കൂടുതൽ സഹായത്തിനായി ഞങ്ങളുടെ ടീമുമായി ബന്ധപ്പെടുക.",
