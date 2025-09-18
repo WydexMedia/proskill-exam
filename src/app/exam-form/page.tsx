@@ -59,6 +59,7 @@ export default function ExamForm() {
   const [started, setStarted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
   const [language, setLanguage] = useState<"en" | "ml">("en");
+  
 
   const t = translations[language];
 

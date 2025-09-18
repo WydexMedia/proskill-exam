@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from 'lucide-react';
 
 type Submission = {
   _id: string;
@@ -23,6 +24,9 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
+  const [sorting,setSorting] = useState(true)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -41,23 +45,38 @@ export default function Dashboard() {
 
   // Filtered submissions: always apply both status and search filters
   const filteredSubmissions = submissions.filter((s) => {
+
     // Status filter
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
+    // score filtering 
+    const AscendingOrder = submissions.sort((a,b)=>sorting?a.score-b.score :b.score - a.score)
+    if(sorting) return AscendingOrder
     // Search filter
     if (search) {
       const q = search.toLowerCase();
+
       return (
         s.name.toLowerCase().includes(q) ||
         s.email.toLowerCase().includes(q) ||
         s.mobile.toLowerCase().includes(q) ||
         s.batch.toLowerCase().includes(q) ||
-        s.tutor.toLowerCase().includes(q) ||
-        s.score.toString() === q
+        s.tutor.toLowerCase().includes(q) 
+        
       );
+
     }
+    
     return true;
   });
+
+  // modal code 
+  const openConfirmationModal = () => { 
+  
+    setIsConfirmModalOpen(true);
+  };
+
+  const Ascending = ()=>{setSorting(!sorting)}
 
   // Count passed and failed in filtered submissions
   const passedCount = filteredSubmissions.filter((s) => s.passed).length;
@@ -74,6 +93,10 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  }
+
+  const deleteUser = (data:any)=>{
+    console.log(data)
   }
 
   return (
@@ -122,16 +145,16 @@ export default function Dashboard() {
                 <div className="bg-red-100 text-red-800 px-3 py-1 rounded text-xs font-medium flex items-center min-w-[60px] justify-center">
                   Failed: {failedCount}
                 </div>
-            </div>
-           <button
+              </div>
+              <button
                 className="bg-black text-white px-6 py-2 font-light tracking-wide hover:bg-gray-900 transition-colors duration-200 sm:ml-4"
-              onClick={() => {
-                localStorage.removeItem("proskill_logged_in");
-                router.push("/login");
-              }}
-            >
-              Logout
-            </button>
+                onClick={() => {
+                  localStorage.removeItem("proskill_logged_in");
+                  router.push("/login");
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -174,7 +197,21 @@ export default function Dashboard() {
                   <div className="col-span-2">Contact</div>
                   <div>Batch</div>
                   <div>Tutor</div>
-                  <div>Score</div>
+                  
+                    <button className="flex " onClick={Ascending}>
+                      <span className="">SCORE</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* <!-- Ascending Arrow (Up) --> */}
+                        <path d="M12 8L12 4" stroke="black" stroke-width="2" />
+                        <path d="M8 8L12 4L16 8" stroke="black" stroke-width="2" />
+                        <path d="M12 16L12 20" stroke="black" stroke-width="2" />
+                        <path d="M8 16L12 20L16 16" stroke="black" stroke-width="2" />
+                      </svg>
+                    </button>
+
+
+
+                 
                   <div>Status</div>
                   {/* <div>Action</div> */}
                 </div>
@@ -185,9 +222,8 @@ export default function Dashboard() {
                 {filteredSubmissions.map((s, index) => (
                   <div
                     key={s._id}
-                    className={`px-6 py-4 hover:bg-gray-50 transition-colors duration-150 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
-                    }`}
+                    className={`px-6 py-4 hover:bg-gray-50 transition-colors duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                      }`}
                   >
                     <div className="grid grid-cols-8 gap-4 items-center text-sm">
                       {/* Student Info */}
@@ -203,24 +239,24 @@ export default function Dashboard() {
                           })}
                         </div>
                       </div>
-                      
+
                       {/* Contact */}
                       <div className="col-span-2">
                         <div className="text-gray-600 font-light text-xs">{s.email}</div>
                         <div className="text-gray-600 font-light text-xs mt-1">{s.mobile}</div>
                       </div>
-                      
+
                       {/* Batch */}
                       <div className="text-gray-600 font-light">{s.batch}</div>
-                      
+
                       {/* Tutor */}
                       <div className="text-gray-600 font-light">{s.tutor}</div>
-                      
+
                       {/* Score */}
                       <div className="font-medium text-black">
                         {s.score}<span className="text-gray-400 font-light">/15</span>
                       </div>
-                      
+
                       {/* Status */}
                       <div>
                         {s.passed ? (
@@ -233,7 +269,7 @@ export default function Dashboard() {
                           </span>
                         )}
                       </div>
-                      
+
                       {/* Action */}
                       {/* <div>
                         {s.passed && s.certificate ? (
@@ -247,12 +283,52 @@ export default function Dashboard() {
                           <span className="text-gray-300">—</span>
                         )}
                       </div> */}
+
+                      {/* Delete */}
+                       <div>
+                         <button
+                            className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                            onClick={()=>{
+                              setSelectedUserId(s._id)
+                              openConfirmationModal();
+                            } }
+                            
+                          >
+                              <Trash2 className="text-red-700" size={18} />
+                          </button>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
+                {isConfirmModalOpen && (
+            <div className="fixed inset-0 z-40 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setIsConfirmModalOpen(false)}></div>
+              <div className="relative bg-white border border-black p-6 w-full max-w-md mx-4 z-50">
+                <h3 className="text-lg font-semibold mb-4 text-black">Please confirm before proceed?</h3>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    className="px-4 py-2 border border-black text-black hover:bg-gray-100"
+                    onClick={() => setIsConfirmModalOpen(false)}
+                   
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-black text-white hover:bg-gray-800"  
+                    onClick={()=>{
+                      if(selectedUserId){
+                        
+                      }
+                    }}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
             {/* Mobile Card View */}
             <div className="lg:hidden space-y-4">
               {filteredSubmissions.map((s) => (
@@ -317,6 +393,15 @@ export default function Dashboard() {
                         })}
                       </div>
                     </div>
+                   <div>
+                         <button
+                            className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                            onClick={()=>openConfirmationModal()}
+                            onChange={()=>{deleteUser(s._id)}}
+                          >
+                              <Trash2 className="text-red-700" size={18} />
+                          </button>
+                      </div>
                     {/* <div>
                       {s.passed && s.certificate ? (
                         <a
