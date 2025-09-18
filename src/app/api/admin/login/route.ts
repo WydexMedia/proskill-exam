@@ -1,4 +1,4 @@
-"use client"
+
 
 import { NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
@@ -12,6 +12,11 @@ export async function POST(req:Request){
         }
         const client  = await clientPromise
         const database  = client.db("ExamAdmin")
+        const check:any  = database.collection("Admins").findOne(email)
+        if(check){
+
+            NextResponse.json({check})
+        }
 
 
     }

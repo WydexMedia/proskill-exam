@@ -50,7 +50,7 @@ export default function Dashboard() {
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
     // score filtering 
-    const AscendingOrder = submissions.sort((a,b)=>sorting?a.score-b.score :b.score - a.score)
+    const AscendingOrder = submissions.sort((a,b)=>sorting?b.score - a.score :a.score - b.score)
     if(sorting) return AscendingOrder
     // Search filter
     if (search) {
@@ -70,12 +70,13 @@ export default function Dashboard() {
     return true;
   });
 
-  // modal code 
+  // modal oepning and closing code 
   const openConfirmationModal = () => { 
-  
-    setIsConfirmModalOpen(true);
+   setIsConfirmModalOpen(!isConfirmModalOpen);
   };
 
+
+  // setting true or false
   const Ascending = ()=>{setSorting(!sorting)}
 
   // Count passed and failed in filtered submissions
@@ -95,8 +96,16 @@ export default function Dashboard() {
     );
   }
 
-  const deleteUser = (data:any)=>{
-    console.log(data)
+
+  const deleteUser = async ()=>{
+     await fetch("api/deletUser",{
+      method:"DELETE",
+      headers:{ "Content-Type": "application/json" },
+      body:JSON.stringify({ email: selectedUserId }) 
+    })
+    
+    setSelectedUserId("")
+    openConfirmationModal()
   }
 
   return (
@@ -289,7 +298,7 @@ export default function Dashboard() {
                          <button
                             className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
                             onClick={()=>{
-                              setSelectedUserId(s._id)
+                              setSelectedUserId(s.email)
                               openConfirmationModal();
                             } }
                             
@@ -319,7 +328,7 @@ export default function Dashboard() {
                     className="px-4 py-2 bg-black text-white hover:bg-gray-800"  
                     onClick={()=>{
                       if(selectedUserId){
-                        
+                        deleteUser()
                       }
                     }}
                   >
@@ -396,9 +405,11 @@ export default function Dashboard() {
                    <div>
                          <button
                             className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
-                            onClick={()=>openConfirmationModal()}
-                            onChange={()=>{deleteUser(s._id)}}
-                          >
+                            onClick={()=>{ 
+                              setSelectedUserId(s._id);
+                              openConfirmationModal();
+                            }
+                             } >
                               <Trash2 className="text-red-700" size={18} />
                           </button>
                       </div>

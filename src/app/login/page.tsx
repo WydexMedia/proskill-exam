@@ -37,6 +37,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (username === "proskilladmin" && password === "Proskill@wydex") {
       localStorage.setItem("proskill_logged_in", "true"); // Set session
       router.push("/dashboard");
