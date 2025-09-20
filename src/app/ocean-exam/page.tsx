@@ -276,7 +276,14 @@ export default function OceanExam() {
                 options: ["റെസിൻ, പിഗ്മെന്റ്", "റെസിൻ, ഹാർഡ്നർ", "റെസിൻ, വെള്ളം", "റെസിൻ, പശ"],
             },
         ]
+    // tutor names  and positions
+    const tutors = {
+        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
+        "Mehandi Tutor": ["Jasira"],
+        "Digital Marketing": ["Brijesh"],
+    };
 
+    
     const currentQuestions = language === "ml" ? questionsML : questionsEN;
 
     // Malayalam to English mapping for answers
@@ -397,7 +404,7 @@ export default function OceanExam() {
         }
 
         const payload = {
-            type:"ocean",
+            type: "ocean",
             name: formData.get("name"),
             email: formData.get("email"),
             mobile: formData.get("mobile"),
@@ -413,7 +420,7 @@ export default function OceanExam() {
         });
 
         const result = await res.json();
-        console.log("res",result)
+        console.log("res", result)
 
         if (result.success) {
             if (result.passed) {
@@ -490,17 +497,39 @@ export default function OceanExam() {
                                     <label className="block text-sm font-medium mb-2 capitalize">
                                         {field} *
                                     </label>
-                                    <input
-                                        type={field === "email" ? "email" : "text"}
-                                        name={field}
-                                        required
-                                        readOnly={started}
-                                        className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                                        placeholder={`${t.enterField} ${field}`}
-                                    />
+
+                                    {field === "tutor" ? (
+                                        <select
+                                            name={field}
+                                            required
+                                            disabled={started}
+                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                                        >
+                                            <option value="">Select Tutor</option>
+                                            {Object.entries(tutors).map(([group, names]) => (
+                                                <optgroup key={group} label={group}>
+                                                    {names.map((name) => (
+                                                        <option key={name} value={name}>
+                                                            {name}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={field === "email" ? "email" : "text"}
+                                            name={field}
+                                            required
+                                            readOnly={started}
+                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                                            placeholder={`${t.enterField} ${field}`}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
+
 
                         {lockoutMessage && (
                             <div className="mt-4 p-4 border-2 border-black bg-gray-50">

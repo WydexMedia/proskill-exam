@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from 'lucide-react';
+import { NextResponse } from "next/server";
 
 type Submission = {
   _id: string;
@@ -24,7 +25,7 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
-  const [sorting,setSorting] = useState(true)
+  const [sorting, setSorting] = useState(true)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
@@ -50,8 +51,8 @@ export default function Dashboard() {
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
     // score filtering 
-    const AscendingOrder = submissions.sort((a,b)=>sorting?b.score - a.score :a.score - b.score)
-    if(sorting) return AscendingOrder
+    const AscendingOrder = submissions.sort((a, b) => sorting ? b.score - a.score : a.score - b.score)
+    if (sorting) return AscendingOrder
     // Search filter
     if (search) {
       const q = search.toLowerCase();
@@ -61,23 +62,29 @@ export default function Dashboard() {
         s.email.toLowerCase().includes(q) ||
         s.mobile.toLowerCase().includes(q) ||
         s.batch.toLowerCase().includes(q) ||
-        s.tutor.toLowerCase().includes(q) 
-        
+        s.tutor.toLowerCase().includes(q)
+
       );
 
     }
-    
+
     return true;
   });
 
   // modal oepning and closing code 
-  const openConfirmationModal = () => { 
-   setIsConfirmModalOpen(!isConfirmModalOpen);
+  const openConfirmationModal = () => {
+    setIsConfirmModalOpen(true);
+  };
+
+  // modal closing code 
+  const closeConfirmationModal = () => {
+    setIsConfirmModalOpen(false);
   };
 
 
+
   // setting true or false
-  const Ascending = ()=>{setSorting(!sorting)}
+  const Ascending = () => { setSorting(!sorting) }
 
   // Count passed and failed in filtered submissions
   const passedCount = filteredSubmissions.filter((s) => s.passed).length;
@@ -97,16 +104,30 @@ export default function Dashboard() {
   }
 
 
-  const deleteUser = async ()=>{
-     await fetch("api/deletUser",{
-      method:"DELETE",
-      headers:{ "Content-Type": "application/json" },
-      body:JSON.stringify({ email: selectedUserId }) 
-    })
-    
-    setSelectedUserId("")
-    openConfirmationModal()
+  const deleteUser = async () => {
+    try {
+      const res = await fetch("/api/deleteUser", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedUserId })
+      }
+      )
+      const data = await res.json()
+
+      if (!res.ok) {
+        console.error("Failed to delete user:", data.error || data)
+        return;
+      }
+
+      setSelectedUserId("")
+      closeConfirmationModal()
+    } catch (err) {
+      console.error("Something went wrong:", err)
+      NextResponse.json({ message: err }, { status: 500 })
+    }
   }
+
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -206,21 +227,21 @@ export default function Dashboard() {
                   <div className="col-span-2">Contact</div>
                   <div>Batch</div>
                   <div>Tutor</div>
-                  
-                    <button className="flex " onClick={Ascending}>
-                      <span className="">SCORE</span>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        {/* <!-- Ascending Arrow (Up) --> */}
-                        <path d="M12 8L12 4" stroke="black" stroke-width="2" />
-                        <path d="M8 8L12 4L16 8" stroke="black" stroke-width="2" />
-                        <path d="M12 16L12 20" stroke="black" stroke-width="2" />
-                        <path d="M8 16L12 20L16 16" stroke="black" stroke-width="2" />
-                      </svg>
-                    </button>
+
+                  <button className="flex " onClick={Ascending}>
+                    <span className="">SCORE</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      {/* <!-- Ascending Arrow (Up) --> */}
+                      <path d="M12 8L12 4" stroke="black" stroke-width="2" />
+                      <path d="M8 8L12 4L16 8" stroke="black" stroke-width="2" />
+                      <path d="M12 16L12 20" stroke="black" stroke-width="2" />
+                      <path d="M8 16L12 20L16 16" stroke="black" stroke-width="2" />
+                    </svg>
+                  </button>
 
 
 
-                 
+
                   <div>Status</div>
                   {/* <div>Action</div> */}
                 </div>
@@ -294,50 +315,52 @@ export default function Dashboard() {
                       </div> */}
 
                       {/* Delete */}
-                       <div>
-                         <button
-                            className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
-                            onClick={()=>{
-                              setSelectedUserId(s.email)
-                              openConfirmationModal();
-                            } }
-                            
-                          >
-                              <Trash2 className="text-red-700" size={18} />
-                          </button>
+                      <div>
+                        <button
+                          className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                          onClick={() => {
+                            setSelectedUserId(s._id)
+                            openConfirmationModal();
+                          }}
+
+                        >
+                          <Trash2 className="text-red-700" size={18} />
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-                {isConfirmModalOpen && (
-            <div className="fixed inset-0 z-40 flex items-center justify-center">
-              <div className="absolute inset-0 bg-black/50" onClick={() => setIsConfirmModalOpen(false)}></div>
-              <div className="relative bg-white border border-black p-6 w-full max-w-md mx-4 z-50">
-                <h3 className="text-lg font-semibold mb-4 text-black">Please confirm before proceed?</h3>
-                <div className="mt-4 flex justify-end gap-2">
-                  <button
-                    className="px-4 py-2 border border-black text-black hover:bg-gray-100"
-                    onClick={() => setIsConfirmModalOpen(false)}
-                   
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-black text-white hover:bg-gray-800"  
-                    onClick={()=>{
-                      if(selectedUserId){
-                        deleteUser()
-                      }
-                    }}
-                  >
-                    Confirm
-                  </button>
+
+            {/* Modal Code  */}
+            {isConfirmModalOpen && (
+              <div className="fixed inset-0 z-40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50" onClick={() => setIsConfirmModalOpen(false)}></div>
+                <div className="relative bg-white border border-black p-6 w-full max-w-md mx-4 z-50">
+                  <h3 className="text-lg font-semibold mb-4 text-black">Please confirm before proceed?</h3>
+                  <div className="mt-4 flex justify-end gap-2">
+                    <button
+                      className="px-4 py-2 border border-black text-black hover:bg-gray-100"
+                      onClick={() => setIsConfirmModalOpen(false)}
+
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-black text-white hover:bg-gray-800"
+                      onClick={() => {
+                        if (selectedUserId) {
+                          deleteUser()
+                        }
+                      }}
+                    >
+                      Confirm
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
             {/* Mobile Card View */}
             <div className="lg:hidden space-y-4">
               {filteredSubmissions.map((s) => (
@@ -402,17 +425,17 @@ export default function Dashboard() {
                         })}
                       </div>
                     </div>
-                   <div>
-                         <button
-                            className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
-                            onClick={()=>{ 
-                              setSelectedUserId(s._id);
-                              openConfirmationModal();
-                            }
-                             } >
-                              <Trash2 className="text-red-700" size={18} />
-                          </button>
-                      </div>
+                    <div>
+                      <button
+                        className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                        onClick={() => {
+                          setSelectedUserId(s._id);
+                          openConfirmationModal();
+                        }
+                        } >
+                        <Trash2 className="text-red-700" size={18} />
+                      </button>
+                    </div>
                     {/* <div>
                       {s.passed && s.certificate ? (
                         <a

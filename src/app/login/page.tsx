@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+
 // Translations
 const translations = {
   en: {
     title: "Admin Login",
-    username: "Username",
+    email: "Email",
     password: "Password",
     login: "Login",
     invalidCredentials: "Invalid username or password",
@@ -16,7 +17,7 @@ const translations = {
   },
   ml: {
     title: "അഡ്മിൻ ലോഗിൻ",
-    username: "ഉപയോക്തൃനാമം",
+    email: "ഉപയോക്തൃനാമം",
     password: "പാസ്വേഡ്",
     login: "ലോഗിൻ",
     invalidCredentials: "അസാധുവായ ഉപയോക്തൃനാമം അല്ലെങ്കിൽ പാസ്വേഡ്",
@@ -26,7 +27,7 @@ const translations = {
 };
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [language, setLanguage] = useState<"en" | "ml">("en");
@@ -35,15 +36,33 @@ export default function LoginPage() {
 
   const t = translations[language];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (username === "proskilladmin" && password === "Proskill@wydex") {
-      localStorage.setItem("proskill_logged_in", "true"); // Set session
+    setError("")
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Login Failed")
+        return
+      }
+      localStorage.setItem("proskill_logged_in", "true"); // session
       router.push("/dashboard");
-    } else {
-      setError(t.invalidCredentials);
     }
+    catch (err) {
+      console.log("Login Error:", err)
+      setError("Something went wrong.please try again")
+
+    }
+    
   };
 
   // Add auto-redirect if already logged in
@@ -56,7 +75,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        
+
         {/* Language Switcher */}
         <div className="absolute top-4 right-4">
           <button
@@ -66,7 +85,7 @@ export default function LoginPage() {
             {language === "en" ? "മലയാളം" : "English"}
           </button>
         </div>
-        
+
         {/* Simple Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-black">{t.title}</h1>
@@ -74,7 +93,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="space-y-6">
-          
+
           {/* Error Message */}
           {error && (
             <div className="text-center">
@@ -82,14 +101,14 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Username Field */}
+          {/* Email Field */}
           <div>
-            <label className="block text-black mb-2 text-sm">{t.username}</label>
+            <label className="block text-black mb-2 text-sm">{t.email}</label>
             <input
-              type="text"
+              type="email"
               className="w-full px-3 py-2 border border-black bg-white text-black focus:outline-none"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              
+              onChange={(e) => setemail(e.target.value)}
               autoFocus
             />
           </div>
