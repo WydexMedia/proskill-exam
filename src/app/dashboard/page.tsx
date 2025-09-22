@@ -13,6 +13,7 @@ type Submission = {
   score: number;
   passed: boolean;
   submittedAt: string;
+  type: string;
   // certificate?: string; // base64 string for download
 };
 
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
+  const [examTypeFilter, setExamTypeFilter] = useState("all"); // 'all', 'resin', 'mehandi', 'ocean'
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -39,11 +41,15 @@ export default function Dashboard() {
     }
   }, [router]);
 
-  // Filtered submissions: always apply both status and search filters
+  // Filtered submissions: apply status, exam type, and search filters
   const filteredSubmissions = submissions.filter((s) => {
     // Status filter
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
+    
+    // Exam type filter
+    if (examTypeFilter !== "all" && s.type !== examTypeFilter) return false;
+    
     // Search filter
     if (search) {
       const q = search.toLowerCase();
@@ -138,20 +144,38 @@ export default function Dashboard() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Status filter above table/card views */}
-        <div className="mb-4 flex items-center">
-          <label htmlFor="statusFilter" className="mr-2 text-sm text-gray-700 font-medium">Show:</label>
-          <select
-            id="statusFilter"
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
-            style={{ minWidth: 110 }}
-          >
-            <option value="all">All Students</option>
-            <option value="passed">Passed</option>
-            <option value="failed">Failed</option>
-          </select>
+        {/* Status and Exam Type filters above table/card views */}
+        <div className="mb-4 flex items-center gap-4">
+          <div className="flex items-center">
+            <label htmlFor="statusFilter" className="mr-2 text-sm text-gray-700 font-medium">Show:</label>
+            <select
+              id="statusFilter"
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
+              style={{ minWidth: 110 }}
+            >
+              <option value="all">All Students</option>
+              <option value="passed">Passed</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center">
+            <label htmlFor="examTypeFilter" className="mr-2 text-sm text-gray-700 font-medium">Exam Type:</label>
+            <select
+              id="examTypeFilter"
+              value={examTypeFilter}
+              onChange={e => setExamTypeFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
+              style={{ minWidth: 120 }}
+            >
+              <option value="all">All Exams</option>
+              <option value="resin">Resin Art</option>
+              <option value="mehandi">Mehndi Art</option>
+              <option value="ocean">Ocean Theme</option>
+            </select>
+          </div>
         </div>
         {filteredSubmissions.length === 0 ? (
           <div className="text-center py-12">
@@ -175,6 +199,7 @@ export default function Dashboard() {
                   <div>Tutor</div>
                   <div>Score</div>
                   <div>Status</div>
+                  <div>Type</div>
                   {/* <div>Action</div> */}
                 </div>
               </div>
@@ -232,7 +257,9 @@ export default function Dashboard() {
                           </span>
                         )}
                       </div>
-                      
+
+                      {/* Type */}
+                      <div className="text-gray-600 font-light">{s.type}</div>
                       {/* Action */}
                       {/* <div>
                         {s.passed && s.certificate ? (
