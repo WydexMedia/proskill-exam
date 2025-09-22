@@ -27,14 +27,14 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
   const [sorting, setSorting] = useState(true)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string >("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   useEffect(() => {
-   fetchUsers()
+    fetchUsers()
   }, []);
 
   // fetch users 
-  const fetchUsers = ()=>{
+  const fetchUsers = () => {
     fetch("/api/dashboard")
       .then((res) => res.json())
       .then((data) => {
@@ -56,7 +56,7 @@ export default function Dashboard() {
     if (statusFilter === "failed" && s.passed) return false;
     // score filtering 
     const AscendingOrder = submissions.sort((a, b) => sorting ? b.score - a.score : a.score - b.score)
-   
+
     // Search filter
     if (search) {
       const q = search.toLowerCase();
@@ -72,11 +72,11 @@ export default function Dashboard() {
     return true;
   });
 
-  
+
 
   // modal oepning and closing code 
   const openConfirmationModal = () => {
-   
+
     setIsConfirmModalOpen(true);
   };
 
@@ -319,15 +319,22 @@ export default function Dashboard() {
                         )}
                       </div> */}
 
-                      {/* Delete */}
+                      {/* Delete Button*/}
                       <div>
                         <button
-                          className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                          className="
+         inline-flex justify-center items-center 
+      no-underline text-xs font-medium 
+      text-black hover:text-gray-600 
+      transition-colors duration-200 
+      h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 
+      border border-black hover:border-gray-600
+      rounded
+    "
                           onClick={() => {
-                            setSelectedUserId(s._id)
+                            setSelectedUserId(s._id);
                             openConfirmationModal();
                           }}
-
                         >
                           <Trash2 className="text-red-700" size={18} />
                         </button>
