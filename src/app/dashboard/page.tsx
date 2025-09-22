@@ -27,17 +27,21 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
   const [sorting, setSorting] = useState(true)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string >("");
 
   useEffect(() => {
+   fetchUsers()
+  }, []);
+
+  // fetch users 
+  const fetchUsers = ()=>{
     fetch("/api/dashboard")
       .then((res) => res.json())
       .then((data) => {
         setSubmissions(data.submissions);
         setLoading(false);
       });
-  }, []);
-
+  }
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("proskill_logged_in") !== "true") {
       router.push("/login");
@@ -52,7 +56,7 @@ export default function Dashboard() {
     if (statusFilter === "failed" && s.passed) return false;
     // score filtering 
     const AscendingOrder = submissions.sort((a, b) => sorting ? b.score - a.score : a.score - b.score)
-    if (sorting) return AscendingOrder
+   
     // Search filter
     if (search) {
       const q = search.toLowerCase();
@@ -63,16 +67,16 @@ export default function Dashboard() {
         s.mobile.toLowerCase().includes(q) ||
         s.batch.toLowerCase().includes(q) ||
         s.tutor.toLowerCase().includes(q)
-
       );
-
     }
-
     return true;
   });
 
+  
+
   // modal oepning and closing code 
   const openConfirmationModal = () => {
+   
     setIsConfirmModalOpen(true);
   };
 
@@ -121,6 +125,7 @@ export default function Dashboard() {
 
       setSelectedUserId("")
       closeConfirmationModal()
+      fetchUsers()
     } catch (err) {
       console.error("Something went wrong:", err)
       NextResponse.json({ message: err }, { status: 500 })

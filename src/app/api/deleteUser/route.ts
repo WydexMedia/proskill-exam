@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb";
 
 export async function DELETE(req: Request) {
   try {
-    const { id }: { id: string } = await req.json();
+    const { id } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: "Missing user id" }, { status: 400 });
@@ -15,7 +15,7 @@ export async function DELETE(req: Request) {
     const collection = database.collection("examSubmissions");
 
     // Try to delete directly
-    const result = await collection.deleteOne({ _id: new Types.ObjectId(id) });
+    const result = await collection.deleteOne({ _id: new Types.ObjectId(id)});
 
     if (result.deletedCount === 1) {
       return NextResponse.json(
