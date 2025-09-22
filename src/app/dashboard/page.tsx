@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowUpDown } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { NextResponse } from "next/server";
 
 type Submission = {
@@ -30,6 +39,8 @@ export default function Dashboard() {
   const [sorting, setSorting] = useState(true)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string >("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
    fetchUsers()
@@ -52,16 +63,12 @@ export default function Dashboard() {
 
   // Filtered submissions: apply status, exam type, and search filters
   const filteredSubmissions = submissions.filter((s) => {
-
     // Status filter
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
     
     // Exam type filter
     if (examTypeFilter !== "all" && s.type !== examTypeFilter) return false;
-    
-    // score filtering 
-    const AscendingOrder = submissions.sort((a, b) => sorting ? b.score - a.score : a.score - b.score)
    
     // Search filter
     if (search) {
@@ -77,6 +84,27 @@ export default function Dashboard() {
     }
     return true;
   });
+
+  // Sort filtered submissions
+  const sortedSubmissions = [...filteredSubmissions].sort((a, b) => 
+    sorting ? b.score - a.score : a.score - b.score
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(sortedSubmissions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentSubmissions = sortedSubmissions.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, examTypeFilter, search]);
+
+  // Reset to first page when items per page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
 
   
 
@@ -204,15 +232,15 @@ export default function Dashboard() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Status and Exam Type filters above table/card views */}
-        <div className="mb-4 flex items-center gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center">
             <label htmlFor="statusFilter" className="mr-2 text-sm text-gray-700 font-medium">Show:</label>
             <select
               id="statusFilter"
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
-              style={{ minWidth: 110 }}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
+              style={{ minWidth: 120 }}
             >
               <option value="all">All Students</option>
               <option value="passed">Passed</option>
@@ -226,8 +254,8 @@ export default function Dashboard() {
               id="examTypeFilter"
               value={examTypeFilter}
               onChange={e => setExamTypeFilter(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
-              style={{ minWidth: 120 }}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
+              style={{ minWidth: 130 }}
             >
               <option value="all">All Exams</option>
               <option value="resin">Resin Art</option>
@@ -235,8 +263,12 @@ export default function Dashboard() {
               <option value="ocean">Ocean Theme</option>
             </select>
           </div>
+          
+          <div className="text-sm text-gray-600 sm:ml-auto">
+            Showing {startIndex + 1}-{Math.min(endIndex, sortedSubmissions.length)} of {sortedSubmissions.length} submissions ({itemsPerPage} per page)
+          </div>
         </div>
-        {filteredSubmissions.length === 0 ? (
+        {sortedSubmissions.length === 0 ? (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 border-2 border-gray-200 rounded-full mb-4">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,47 +280,39 @@ export default function Dashboard() {
         ) : (
           <>
             {/* Desktop Table View */}
-            <div className="hidden lg:block bg-white border border-gray-200 overflow-hidden">
+            <div className="hidden md:block bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
               {/* Table Header */}
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <div className="grid grid-cols-8 gap-4 text-xs uppercase tracking-wider text-gray-500 font-medium">
-                  <div className="col-span-1">Student Info</div>
+                <div className="grid grid-cols-10 gap-6 text-xs uppercase tracking-wider text-gray-500 font-medium min-w-[1200px]">
+                  <div className="col-span-2">Student Info</div>
                   <div className="col-span-2">Contact</div>
                   <div>Batch</div>
                   <div>Tutor</div>
-
-                  <button className="flex " onClick={Ascending}>
-                    <span className="">SCORE</span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {/* <!-- Ascending Arrow (Up) --> */}
-                      <path d="M12 8L12 4" stroke="black" stroke-width="2" />
-                      <path d="M8 8L12 4L16 8" stroke="black" stroke-width="2" />
-                      <path d="M12 16L12 20" stroke="black" stroke-width="2" />
-                      <path d="M8 16L12 20L16 16" stroke="black" stroke-width="2" />
-                    </svg>
-                  </button>
-
-
-
-
+                  <div className="flex items-center justify-center">
+                    <button className="flex items-center gap-1 hover:text-gray-700 transition-colors" onClick={Ascending}>
+                      <span>SCORE</span>
+                      <ArrowUpDown size={14} className="cursor-pointer" />
+                    </button>
+                  </div>
                   <div>Status</div>
                   <div>Type</div>
-                  {/* <div>Action</div> */}
+                  <div className="text-center">Action</div>
                 </div>
               </div>
 
               {/* Table Body */}
               <div className="divide-y divide-gray-100">
-                {filteredSubmissions.map((s, index) => (
+                {currentSubmissions.map((s, index) => (
                   <div
                     key={s._id}
                     className={`px-6 py-4 hover:bg-gray-50 transition-colors duration-150 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
                       }`}
                   >
-                    <div className="grid grid-cols-8 gap-4 items-center text-sm">
-                      {/* Student Info */}
-                      <div className="col-span-1">
-                        <div className="font-medium text-black">{s.name}</div>
+                    <div className="grid grid-cols-10 gap-6 items-center text-sm min-w-[1200px]">
+                      {/* Student Info - Column 1-2 */}
+                      <div className="col-span-2">
+                        <div className="font-medium text-black truncate">{s.name}</div>
                         <div className="text-xs text-gray-500 font-light mt-1">
                           {new Date(s.submittedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -300,70 +324,173 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      {/* Contact */}
+                      {/* Contact - Column 3-4 */}
                       <div className="col-span-2">
-                        <div className="text-gray-600 font-light text-xs">{s.email}</div>
+                        <div className="text-gray-600 font-light text-xs truncate">{s.email}</div>
                         <div className="text-gray-600 font-light text-xs mt-1">{s.mobile}</div>
                       </div>
 
-                      {/* Batch */}
-                      <div className="text-gray-600 font-light">{s.batch}</div>
+                      {/* Batch - Column 5 */}
+                      <div className="text-gray-600 font-light truncate">{s.batch}</div>
 
-                      {/* Tutor */}
-                      <div className="text-gray-600 font-light">{s.tutor}</div>
+                      {/* Tutor - Column 6 */}
+                      <div className="text-gray-600 font-light truncate">{s.tutor}</div>
 
-                      {/* Score */}
-                      <div className="font-medium text-black">
+                      {/* Score - Column 7 */}
+                      <div className="font-medium text-black text-center">
                         {s.score}<span className="text-gray-400 font-light">/15</span>
                       </div>
 
-                      {/* Status */}
-                      <div>
+                      {/* Status - Column 8 */}
+                      <div className="flex justify-center">
                         {s.passed ? (
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-black text-white">
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-black text-white rounded">
                             PASSED
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium border border-gray-300 text-gray-600">
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium border border-gray-300 text-gray-600 rounded">
                             FAILED
                           </span>
                         )}
                       </div>
 
-                      {/* Type */}
-                      <div className="text-gray-600 font-light">{s.type}</div>
-                      {/* Action */}
-                      {/* <div>
-                        {s.passed && s.certificate ? (
-                          <button
-                            className="inline-flex items-center text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200 border-b border-black hover:border-gray-600"
-                            onClick={() => alert('Certificate download would trigger here')}
-                          >
-                            Download
-                          </button>
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
-                      </div> */}
+                      {/* Type - Column 9 */}
+                      <div className="text-gray-600 font-light capitalize">{s.type}</div>
 
-                      {/* Delete */}
-                      <div>
+                      {/* Delete Action - Column 10 (should be in Action column) */}
+                      <div className="flex justify-center">
                         <button
-                          className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
+                          className="inline-flex justify-center items-center text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors duration-200 h-8 w-8 rounded-full"
                           onClick={() => {
                             setSelectedUserId(s._id)
                             openConfirmationModal();
                           }}
-
+                          title="Delete submission"
                         >
-                          <Trash2 className="text-red-700" size={18} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+              </div>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Items per page selector */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="itemsPerPage" className="text-sm text-gray-600 font-medium">
+                    
+                  </label>
+                  <select
+                    id="itemsPerPage"
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+
+                {/* Pagination controls */}
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage > 1) {
+                            setCurrentPage(currentPage - 1);
+                          }
+                        }}
+                        className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {/* Page numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                      // Show first page, last page, current page, and pages around current page
+                      const shouldShow = 
+                        page === 1 || 
+                        page === totalPages || 
+                        (page >= currentPage - 1 && page <= currentPage + 1);
+                      
+                      if (!shouldShow) {
+                        // Show ellipsis for gaps
+                        if (page === currentPage - 2 || page === currentPage + 2) {
+                          return (
+                            <PaginationItem key={page}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        return null;
+                      }
+                      
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                            }}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage < totalPages) {
+                            setCurrentPage(currentPage + 1);
+                          }
+                        }}
+                        className={currentPage >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+
+            {/* Show items per page selector even when there's only one page */}
+            {totalPages <= 1 && sortedSubmissions.length > 0 && (
+              <div className="mt-6 flex justify-center">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="itemsPerPage" className="text-sm text-gray-600 font-medium">
+                    Items per page:
+                  </label>
+                  <select
+                    id="itemsPerPage"
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             {/* Modal Code  */}
             {isConfirmModalOpen && (
@@ -394,60 +521,60 @@ export default function Dashboard() {
               </div>
             )}
             {/* Mobile Card View */}
-            <div className="lg:hidden space-y-4">
-              {filteredSubmissions.map((s) => (
-                <div key={s._id} className="bg-white border border-gray-200 p-4 space-y-3">
-                  {/* Header with name and status */}
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-black">{s.name}</h3>
-                    {s.passed ? (
-                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-black text-white">
-                        PASSED
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium border border-gray-300 text-gray-600">
-                        FAILED
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Score */}
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                    <span className="text-sm text-gray-500">Score</span>
-                    <span className="font-medium text-black">
-                      {s.score}<span className="text-gray-400 font-light">/15</span>
-                    </span>
-                  </div>
-
-                  {/* Contact Info */}
-                  <div className="space-y-2 py-2 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Email</span>
-                      <span className="text-sm text-gray-600 font-light">{s.email}</span>
+            <div className="md:hidden space-y-4">
+              {currentSubmissions.map((s) => (
+                <div key={s._id} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 shadow-sm">
+                  {/* Header with name, status, and exam type */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-black truncate">{s.name}</h3>
+                      <p className="text-xs text-gray-500 mt-1 capitalize">{s.type} Exam</p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Mobile</span>
+                    <div className="flex flex-col items-end gap-2 ml-4">
+                      {s.passed ? (
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-black text-white rounded">
+                          PASSED
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium border border-gray-300 text-gray-600 rounded">
+                          FAILED
+                        </span>
+                      )}
+                      <div className="font-medium text-black text-sm">
+                        {s.score}<span className="text-gray-400 font-light">/15</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Info Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-t border-gray-100">
+                    <div>
+                      <span className="text-xs text-gray-500 block">Email</span>
+                      <span className="text-sm text-gray-600 font-light break-all">{s.email}</span>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 block">Mobile</span>
                       <span className="text-sm text-gray-600 font-light">{s.mobile}</span>
                     </div>
                   </div>
 
-                  {/* Batch and Tutor */}
-                  <div className="space-y-2 py-2 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Batch</span>
+                  {/* Batch and Tutor Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-t border-gray-100">
+                    <div>
+                      <span className="text-xs text-gray-500 block">Batch</span>
                       <span className="text-sm text-gray-600 font-light">{s.batch}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Tutor</span>
+                    <div>
+                      <span className="text-xs text-gray-500 block">Tutor</span>
                       <span className="text-sm text-gray-600 font-light">{s.tutor}</span>
                     </div>
                   </div>
 
-                  {/* Submitted date and certificate */}
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                  {/* Footer with date and actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div>
-                      <span className="text-xs text-gray-500">Submitted</span>
-                      <div className="text-xs text-gray-500 font-light">
+                      <span className="text-xs text-gray-500 block">Submitted</span>
+                      <div className="text-xs text-gray-600 font-light">
                         {new Date(s.submittedAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
@@ -457,30 +584,16 @@ export default function Dashboard() {
                         })}
                       </div>
                     </div>
-                    <div>
-                      <button
-                        className="inline-flex justify-center items-center no-underline text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200  h-[40px] w-[40px]  border-black hover:border-gray-600"
-                        onClick={() => {
-                          setSelectedUserId(s._id);
-                          openConfirmationModal();
-                        }
-                        } >
-                        <Trash2 className="text-red-700" size={18} />
-                      </button>
-                    </div>
-                    {/* <div>
-                      {s.passed && s.certificate ? (
-                        <a
-                          href={`data:application/pdf;base64,${s.certificate}`}
-                          download={`certificate-${s.name}.pdf`}
-                          className="inline-flex items-center text-xs font-medium text-black hover:text-gray-600 transition-colors duration-200 border-b border-black hover:border-gray-600"
-                        >
-                          Download
-                        </a>
-                      ) : (
-                        <span className="text-gray-300">—</span>
-                      )}
-                    </div> */}
+                    <button
+                      className="inline-flex justify-center items-center text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors duration-200 h-8 w-8 rounded-full"
+                      onClick={() => {
+                        setSelectedUserId(s._id);
+                        openConfirmationModal();
+                      }}
+                      title="Delete submission"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
               ))}
