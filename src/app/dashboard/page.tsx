@@ -12,6 +12,24 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { Button } from "@heroui/react";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { NextResponse } from "next/server";
 
 type Submission = {
@@ -36,7 +54,8 @@ export default function Dashboard() {
   const [searching, setSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'passed', 'failed'
   const [examTypeFilter, setExamTypeFilter] = useState("all"); // 'all', 'resin', 'mehandi', 'ocean'
-  const [sorting, setSorting] = useState(true)
+  const [sorting, setSorting] = useState(true) // true = descending score, false = ascending score
+  const [dateSorting, setDateSorting] = useState(true) // true = latest first, false = oldest first
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string >("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,9 +105,16 @@ export default function Dashboard() {
   });
 
   // Sort filtered submissions
-  const sortedSubmissions = [...filteredSubmissions].sort((a, b) => 
-    sorting ? b.score - a.score : a.score - b.score
-  );
+  const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
+    // Sort by score first, then by date
+    const scoreDiff = sorting ? b.score - a.score : a.score - b.score;
+    if (scoreDiff !== 0) return scoreDiff;
+    
+    // If scores are equal, sort by date
+    const dateA = new Date(a.submittedAt).getTime();
+    const dateB = new Date(b.submittedAt).getTime();
+    return dateSorting ? dateB - dateA : dateA - dateB;
+  });
 
   // Pagination logic
   const totalPages = Math.ceil(sortedSubmissions.length / itemsPerPage);
@@ -123,6 +149,7 @@ export default function Dashboard() {
 
   // setting true or false
   const Ascending = () => { setSorting(!sorting) }
+  const toggleDateSorting = () => { setDateSorting(!dateSorting) }
 
   // Count passed and failed in filtered submissions
   const passedCount = filteredSubmissions.filter((s) => s.passed).length;
@@ -234,34 +261,86 @@ export default function Dashboard() {
         {/* Status and Exam Type filters above table/card views */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center">
-            <label htmlFor="statusFilter" className="mr-2 text-sm text-gray-700 font-medium">Show:</label>
-            <select
-              id="statusFilter"
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-              style={{ minWidth: 120 }}
-            >
-              <option value="all">All Students</option>
-              <option value="passed">Passed</option>
-              <option value="failed">Failed</option>
-            </select>
+            <label className="mr-2 text-sm text-gray-700 font-medium">Show:</label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <ShadcnButton 
+                  variant="outline" 
+                  className="bg-black border-gray-600 text-white hover:bg-gray-800 min-w-[140px] justify-between"
+                >
+                  {statusFilter === 'all' ? 'All Students' : 
+                   statusFilter === 'passed' ? 'Passed' : 'Failed'}
+                  <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </ShadcnButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-black border-gray-600">
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setStatusFilter('all')}
+                >
+                  All Students
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setStatusFilter('passed')}
+                >
+                  Passed
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setStatusFilter('failed')}
+                >
+                  Failed
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           
           <div className="flex items-center">
-            <label htmlFor="examTypeFilter" className="mr-2 text-sm text-gray-700 font-medium">Exam Type:</label>
-            <select
-              id="examTypeFilter"
-              value={examTypeFilter}
-              onChange={e => setExamTypeFilter(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-              style={{ minWidth: 130 }}
-            >
-              <option value="all">All Exams</option>
-              <option value="resin">Resin Art</option>
-              <option value="mehandi">Mehndi Art</option>
-              <option value="ocean">Ocean Theme</option>
-            </select>
+            <label className="mr-2 text-sm text-gray-700 font-medium">Exam Type:</label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <ShadcnButton 
+                  variant="outline" 
+                  className="bg-black border-gray-600 text-white hover:bg-gray-800 min-w-[160px] justify-between"
+                >
+                  {examTypeFilter === 'all' ? 'All Exams' : 
+                   examTypeFilter === 'resin' ? 'Resin Art' :
+                   examTypeFilter === 'mehandi' ? 'Mehndi Art' : 'Ocean Theme'}
+                  <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </ShadcnButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-black border-gray-600">
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setExamTypeFilter('all')}
+                >
+                  All Exams
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setExamTypeFilter('resin')}
+                >
+                  Resin Art
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setExamTypeFilter('mehandi')}
+                >
+                  Mehndi Art
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setExamTypeFilter('ocean')}
+                >
+                  Ocean Theme
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           
           <div className="text-sm text-gray-600 sm:ml-auto">
@@ -285,14 +364,43 @@ export default function Dashboard() {
               {/* Table Header */}
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
                 <div className="grid grid-cols-10 gap-6 text-xs uppercase tracking-wider text-gray-500 font-medium min-w-[1200px]">
-                  <div className="col-span-2">Student Info</div>
+                  <div className="col-span-2 flex items-center justify-between">
+                    <span>Student Info</span>
+                    <button 
+                      className="flex items-center gap-1 hover:text-gray-700 transition-colors ml-2" 
+                      onClick={toggleDateSorting}
+                      title={dateSorting ? "Show oldest first" : "Show latest first"}
+                    >
+                      {dateSorting ? (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <div className="col-span-2">Contact</div>
                   <div>Batch</div>
                   <div>Tutor</div>
                   <div className="flex items-center justify-center">
-                    <button className="flex items-center gap-1 hover:text-gray-700 transition-colors" onClick={Ascending}>
+                    <button 
+                      className="flex items-center gap-1 hover:text-gray-700 transition-colors" 
+                      onClick={Ascending}
+                      title={sorting ? "Sort by lowest score first" : "Sort by highest score first"}
+                    >
                       <span>SCORE</span>
-                      <ArrowUpDown size={14} className="cursor-pointer" />
+                      {sorting ? (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                        </svg>
+                      )}
                     </button>
                   </div>
                   <div>Status</div>
@@ -382,21 +490,54 @@ export default function Dashboard() {
               <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 {/* Items per page selector */}
                 <div className="flex items-center gap-2">
-                  <label htmlFor="itemsPerPage" className="text-sm text-gray-600 font-medium">
-                    
+                  <label className="text-sm text-gray-600 font-medium">
+                    Items per page:
                   </label>
-                  <select
-                    id="itemsPerPage"
-                    value={itemsPerPage}
-                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                    className="border border-gray-300 rounded px-2 py-1 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
-                  >
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <ShadcnButton 
+                        variant="outline" 
+                        className="bg-black border-gray-600 text-white hover:bg-gray-800 min-w-16 text-sm justify-between"
+                      >
+                        {itemsPerPage}
+                        <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </ShadcnButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-20 bg-black border-gray-600">
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(5)}
+                      >
+                        5
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(10)}
+                      >
+                        10
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(20)}
+                      >
+                        20
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(50)}
+                      >
+                        50
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(100)}
+                      >
+                        100
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Pagination controls */}
@@ -473,53 +614,84 @@ export default function Dashboard() {
             {totalPages <= 1 && sortedSubmissions.length > 0 && (
               <div className="mt-6 flex justify-center">
                 <div className="flex items-center gap-2">
-                  <label htmlFor="itemsPerPage" className="text-sm text-gray-600 font-medium">
+                  <label className="text-sm text-gray-600 font-medium">
                     Items per page:
                   </label>
-                  <select
-                    id="itemsPerPage"
-                    value={itemsPerPage}
-                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                    className="border border-gray-300 rounded px-2 py-1 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black transition-colors"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <ShadcnButton 
+                        variant="outline" 
+                        className="bg-black border-gray-600 text-white hover:bg-gray-800 min-w-16 text-sm justify-between"
+                      >
+                        {itemsPerPage}
+                        <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </ShadcnButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-20 bg-black border-gray-600">
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(5)}
+                      >
+                        5
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(10)}
+                      >
+                        10
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(20)}
+                      >
+                        20
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(50)}
+                      >
+                        50
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-white hover:bg-gray-800 cursor-pointer"
+                        onClick={() => setItemsPerPage(100)}
+                      >
+                        100
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Modal */}
+            <AlertDialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this submission? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setIsConfirmModalOpen(false)}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      if (selectedUserId) {
+                        deleteUser()
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700"
                   >
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Modal Code  */}
-            {isConfirmModalOpen && (
-              <div className="fixed inset-0 z-40 flex items-center justify-center">
-                <div className="absolute inset-0 bg-black/50" onClick={() => setIsConfirmModalOpen(false)}></div>
-                <div className="relative bg-white border border-black p-6 w-full max-w-md mx-4 z-50">
-                  <h3 className="text-lg font-semibold mb-4 text-black">Please confirm before proceed?</h3>
-                  <div className="mt-4 flex justify-end gap-2">
-                    <button
-                      className="px-4 py-2 border border-black text-black hover:bg-gray-100"
-                      onClick={() => setIsConfirmModalOpen(false)}
-
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-black text-white hover:bg-gray-800"
-                      onClick={() => {
-                        if (selectedUserId) {
-                          deleteUser()
-                        }
-                      }}
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             {/* Mobile Card View */}
             <div className="md:hidden space-y-4">
               {currentSubmissions.map((s) => (
