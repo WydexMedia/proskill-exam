@@ -59,6 +59,7 @@ export default function ExamForm() {
   const [started, setStarted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
   const [language, setLanguage] = useState<"en" | "ml">("en");
+  
 
   const t = translations[language];
 
@@ -254,10 +255,11 @@ export default function ExamForm() {
     });
 
     const result = await res.json();
+    console.log(result.type)
 
     if (result.success) {
       if (result.passed) {
-        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}`;
+        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${result.type}`;
       } else {
         window.location.href = `/exam/failure?score=${result.score}&name=${payload.name}`;
       }
@@ -423,6 +425,12 @@ export default function ExamForm() {
       options: ["ലോഹ മോൾഡുകൾ", "സിലിക്കൺ മോൾഡുകൾ", "ഗ്ലാസ് മോൾഡുകൾ", "മര മോൾഡുകൾ"],
     },
   ];
+   // tutor names  and positions
+    const tutors = {
+        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
+        "Mehandi Tutor": ["Jasira"],
+        "Digital Marketing": ["Brijesh"],
+    };
 
   // Use appropriate questions based on language
   const currentQuestions = language === "ml" ? questionsMalayalam : questions;
@@ -488,23 +496,44 @@ export default function ExamForm() {
           {/* Contact Information */}
           <div className="border-2 border-black p-6">
             <h2 className="text-xl font-bold mb-6">{t.contactInfo}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {["name", "email", "mobile", "batch", "tutor"].map((field) => (
-                <div key={field}>
-                  <label className="block text-sm font-medium mb-2 capitalize">
-                    {field} *
-                  </label>
-                  <input
-                    type={field === "email" ? "email" : "text"}
-                    name={field}
-                    required
-                    readOnly={started}
-                    className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                    placeholder={`${t.enterField} ${field}`}
-                  />
-                </div>
-              ))}
-            </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {["name", "email", "mobile", "batch", "tutor"].map((field) => (
+                                <div key={field}>
+                                    <label className="block text-sm font-medium mb-2 capitalize">
+                                        {field} *
+                                    </label>
+
+                                    {field === "tutor" ? (
+                                        <select
+                                            name={field}
+                                            required
+                                            disabled={started}
+                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                                        >
+                                            <option value="">Select Tutor</option>
+                                            {Object.entries(tutors).map(([group, names]) => (
+                                                <optgroup key={group} label={group}>
+                                                    {names.map((name) => (
+                                                        <option key={name} value={name}>
+                                                            {name}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={field === "email" ? "email" : "text"}
+                                            name={field}
+                                            required
+                                            readOnly={started}
+                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                                            placeholder={`${t.enterField} ${field}`}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
             
             {lockoutMessage && (
               <div className="mt-4 p-4 border-2 border-black bg-gray-50">

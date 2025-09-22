@@ -7,6 +7,7 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const score = searchParams.get("score") ?? "N/A";
   const name = searchParams.get("name") ?? "";
+  const type = searchParams.get("type") ??"";
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8">
@@ -41,7 +42,7 @@ function SuccessContent() {
           )}
           
           <p className="text-base text-gray-500">
-            You have successfully passed the  examination 
+            You have successfully passed the {type} examination
           </p>
           <p className="text-base text-gray-500">
           Your certificate will be sent to your email shortly.
