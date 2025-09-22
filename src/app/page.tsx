@@ -197,7 +197,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => openCodeModal('ocean')}
-              className="bg-black text-white px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
+              className="bg-black text-white button-default px-6 py-4 text-base font-medium hover:bg-gray-800 transition-colors border-2 border-black"
             >
               {t.oceanExam}
             </button>

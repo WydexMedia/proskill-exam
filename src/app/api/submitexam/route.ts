@@ -166,7 +166,6 @@ export async function POST(req: Request) {
         const db = client.db("examDB");
 
         await db.collection("examSubmissions").insertOne({
-          type:data.type,
             name: data.name,
             email: data.email,
             mobile: data.mobile,
