@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function generateCertificatePDF(name: string, dateStr: string) {
-  const certImagePath = path.join(process.cwd(), "public/certificate.jpg");
+  const certImagePath = path.join(process.cwd(), "public/mehandi_certificate.png");
   const certImageBytes = fs.readFileSync(certImagePath);
 
   const pdfDoc = await PDFDocument.create();
@@ -28,11 +28,11 @@ async function generateCertificatePDF(name: string, dateStr: string) {
 
   const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  // Student name
-  page.drawText(name, { x: 350, y: 200, size: 36, font, color: rgb(0, 0, 0) });
-
-  // Current date
-  page.drawText(dateStr, { x: 255, y: 70, size: 18, font, color: rgb(0, 0, 0) });
+   // Student name
+   page.drawText(name, { x: 450, y: 250, size: 36, font, color: rgb(0, 0, 0) });
+ 
+   // Current date
+   page.drawText(dateStr, { x: 358, y: 100, size: 18, font, color: rgb(0, 0, 0) });
 
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
