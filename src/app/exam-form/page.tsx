@@ -427,9 +427,7 @@ export default function ExamForm() {
   ];
    // tutor names  and positions
     const tutors = {
-        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
-        "Mehandi Tutor": ["Jasira"],
-        "Digital Marketing": ["Brijesh"],
+        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"]
     };
 
   // Use appropriate questions based on language
