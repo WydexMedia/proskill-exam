@@ -59,6 +59,7 @@ export default function OceanExam() {
     const [started, setStarted] = useState<boolean>(false);
     const [submitting, setSubmitting] = useState(false);
     const [language, setLanguage] = useState<"en" | "ml">("en");
+    const [list, setList] = useState<Record<string, string[]>>({});
 
     const t = translations[language];
 
@@ -111,6 +112,28 @@ export default function OceanExam() {
         return () => clearInterval(timer);
     }, [timeLeft, started]);
 
+    useEffect(() => {
+        async function loadTutors() {
+            try {
+                const data = await fetchTutorsByCategory("Ocean Tutors");
+                setList(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        loadTutors();
+    }, []);
+
+    const fetchTutorsByCategory = async (category: string) => {
+        const res = await fetch(`/api/tutors?category=${encodeURIComponent(category)}`);
+        if (!res.ok) {
+            throw new Error("Failed to fetch tutors");
+        }
+        return res.json(); // { "Mehandi Tutor": ["Jasira"] }
+    };
+
+    
     const formatTime = (seconds: number): string => {
         const m = Math.floor(seconds / 60)
             .toString()
@@ -277,13 +300,9 @@ export default function OceanExam() {
             },
         ]
     // tutor names  and positions
-    const tutors = {
-        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
-        "Mehandi Tutor": ["Jasira"],
-        "Digital Marketing": ["Brijesh"],
-    };
 
-    
+
+
     const currentQuestions = language === "ml" ? questionsML : questionsEN;
 
     // Malayalam to English mapping for answers
@@ -500,14 +519,14 @@ export default function OceanExam() {
 
                                     {field === "tutor" ? (
                                         <select
-                                            name={field}
+                                            name="tutor"
                                             required
-                                            disabled={started}
                                             className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
                                         >
                                             <option value="">Select Tutor</option>
-                                            {Object.entries(tutors).map(([group, names]) => (
-                                                <optgroup key={group} label={group}>
+
+                                            {Object.entries(list).map(([category, names]) => (
+                                                <optgroup key={category} label={category}>
                                                     {names.map((name) => (
                                                         <option key={name} value={name}>
                                                             {name}

@@ -72,11 +72,9 @@ export default function MehndiExam() {
       alert(t.emailRequired);
       return;
     }
-  useEffect(() => {
-  fetch(`/api/tutors?category=${encodeURIComponent("Mehandi Tutor")}`)
-    .then(res => res.json())
-    .then(data => setList(data));
-}, []);
+    
+    
+    // console.log(list)
 
 
     const res = await fetch("/api/checkLockout", {
@@ -118,6 +116,27 @@ export default function MehndiExam() {
     return () => clearInterval(timer);
   }, [timeLeft, started]);
 
+  useEffect(() => {
+    async function loadTutors() {
+      try {
+        const data = await fetchTutorsByCategory("Mehandi Tutor");
+        setList(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadTutors();
+  }, []);
+
+   const fetchTutorsByCategory = async (category: string) => {
+    const res = await fetch(`/api/tutors?category=${encodeURIComponent(category)}`);
+    if (!res.ok) {
+      throw new Error("Failed to fetch tutors");
+    }
+    return res.json(); // { "Mehandi Tutor": ["Jasira"] }
+  };
+
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
       .toString()
@@ -125,6 +144,10 @@ export default function MehndiExam() {
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
+  
+  // utils/api.ts
+
+
 
   const questionsEN: Question[] = [
     { name: "main-ingredient", question: "What is the main ingredient in traditional mehndi paste?", options: ["Turmeric", "Charcoal", "Henna powder", "Coffee"] },
@@ -309,22 +332,22 @@ export default function MehndiExam() {
 
                   {field === "tutor" ? (
                     <select
-      name="tutor"
-      required
-      className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-    >
-      <option value="">Select Tutor</option>
+                      name="tutor"
+                      required
+                      className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                    >
+                      <option value="">Select Tutor</option>
 
-      {Object.entries(list).map(([category, names]) => (
-        <optgroup key={category} label={category}>
-          {names.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
+                      {Object.entries(list).map(([category, names]) => (
+                        <optgroup key={category} label={category}>
+                          {names.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
 
 
 
