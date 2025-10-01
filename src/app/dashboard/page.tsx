@@ -12,7 +12,6 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { Button } from "@heroui/react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import {
   DropdownMenu,
