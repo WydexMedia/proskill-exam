@@ -31,6 +31,7 @@ export async function GET() {
     tutor: s.tutor,
     score: s.score,
     passed: s.passed,
+    type: s.type,
     submittedAt: s.submittedAt,
     certificate: s.certificate
       ? Buffer.from(s.certificate.buffer).toString("base64")
