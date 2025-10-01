@@ -12,7 +12,6 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { Button } from "@heroui/react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -57,16 +56,16 @@ export default function Dashboard() {
   const [sorting, setSorting] = useState(true) // true = descending score, false = ascending score
   const [dateSorting, setDateSorting] = useState(true) // true = latest first, false = oldest first
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string >("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-   fetchUsers()
+    fetchUsers()
   }, []);
 
   // fetch users 
-  const fetchUsers = ()=>{
+  const fetchUsers = () => {
     fetch("/api/dashboard")
       .then((res) => res.json())
       .then((data) => {
@@ -136,7 +135,7 @@ export default function Dashboard() {
 
   // modal oepning and closing code 
   const openConfirmationModal = () => {
-   
+
     setIsConfirmModalOpen(true);
   };
 
@@ -470,7 +469,7 @@ export default function Dashboard() {
                         <button
                           className="inline-flex justify-center items-center text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors duration-200 h-8 w-8 rounded-full"
                           onClick={() => {
-                            setSelectedUserId(s._id)
+                            setSelectedUserId(s._id);
                             openConfirmationModal();
                           }}
                           title="Delete submission"

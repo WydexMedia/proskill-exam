@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "antd";
 import "antd/dist/reset.css";
 
+
 // Translations
 const translations = {
   en: {
@@ -59,7 +60,7 @@ export default function MehndiExam() {
   const [started, setStarted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
   const [language, setLanguage] = useState<"en" | "ml">("en");
-
+  const [list, setList] = useState<Record<string, string[]>>({});
   const t = translations[language];
 
   const handleStartNow = async (): Promise<void> => {
@@ -71,6 +72,10 @@ export default function MehndiExam() {
       alert(t.emailRequired);
       return;
     }
+    
+    
+    // console.log(list)
+
 
     const res = await fetch("/api/checkLockout", {
       method: "POST",
@@ -111,6 +116,27 @@ export default function MehndiExam() {
     return () => clearInterval(timer);
   }, [timeLeft, started]);
 
+  useEffect(() => {
+    async function loadTutors() {
+      try {
+        const data = await fetchTutorsByCategory("Mehandi Tutor");
+        setList(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadTutors();
+  }, []);
+
+   const fetchTutorsByCategory = async (category: string) => {
+    const res = await fetch(`/api/tutors?category=${encodeURIComponent(category)}`);
+    if (!res.ok) {
+      throw new Error("Failed to fetch tutors");
+    }
+    return res.json(); // { "Mehandi Tutor": ["Jasira"] }
+  };
+
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
       .toString()
@@ -118,6 +144,10 @@ export default function MehndiExam() {
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
+  
+  // utils/api.ts
+
+
 
   const questionsEN: Question[] = [
     { name: "main-ingredient", question: "What is the main ingredient in traditional mehndi paste?", options: ["Turmeric", "Charcoal", "Henna powder", "Coffee"] },
@@ -155,12 +185,12 @@ export default function MehndiExam() {
     { name: "final-color-factor", question: "മെഹന്തിയുടെ അന്തിമ നിറത്തെ ഏറ്റവും അധികം ബാധിക്കുന്ന ഘടകം ഏതാണ്?", options: ["5 മിനിറ്റിനുള്ളിൽ വെള്ളം തേക്കൽ", "ബ്രഷിന്റെ പകരം കോൺ ഉപയോഗിക്കൽ", "ശരീര താപനിലയും ചർമത്തിന്റെ സ്വഭാവവും", "ചുവപ്പ് ഹെന്ന മാത്രം ഉപയോഗിക്കൽ"] },
   ];
 
-   // tutor names  and positions
-    const tutors = {
-        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
-        "Mehandi Tutor": ["Jasira"],
-        "Digital Marketing": ["Brijesh"],
-    };
+  // tutor names  and positions
+  const tutors = {
+    "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
+    "Mehandi Tutor": ["Jasira"],
+    "Digital Marketing": ["Brijesh"],
+  };
 
   const currentQuestions = language === "ml" ? questionsML : questionsEN;
 
@@ -207,7 +237,7 @@ export default function MehndiExam() {
     }
 
     const payload = {
-      type:"mehandi",
+      type: "mehandi",
       name: formData.get("name"),
       email: formData.get("email"),
       mobile: formData.get("mobile"),
@@ -293,44 +323,48 @@ export default function MehndiExam() {
           {/* Contact Information */}
           <div className="border-2 border-black p-6">
             <h2 className="text-xl font-bold mb-6">{t.contactInfo}</h2>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {["name", "email", "mobile", "batch", "tutor"].map((field) => (
-                                <div key={field}>
-                                    <label className="block text-sm font-medium mb-2 capitalize">
-                                        {field} *
-                                    </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {["name", "email", "mobile", "batch", "tutor"].map((field) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium mb-2 capitalize">
+                    {field} *
+                  </label>
 
-                                    {field === "tutor" ? (
-                                        <select
-                                            name={field}
-                                            required
-                                            disabled={started}
-                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                                        >
-                                            <option value="">Select Tutor</option>
-                                            {Object.entries(tutors).map(([group, names]) => (
-                                                <optgroup key={group} label={group}>
-                                                    {names.map((name) => (
-                                                        <option key={name} value={name}>
-                                                            {name}
-                                                        </option>
-                                                    ))}
-                                                </optgroup>
-                                            ))}
-                                        </select>
-                                    ) : (
-                                        <input
-                                            type={field === "email" ? "email" : "text"}
-                                            name={field}
-                                            required
-                                            readOnly={started}
-                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                                            placeholder={`${t.enterField} ${field}`}
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                  {field === "tutor" ? (
+                    <select
+                      name="tutor"
+                      required
+                      className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                    >
+                      <option value="">Select Tutor</option>
+
+                      {Object.entries(list).map(([category, names]) => (
+                        <optgroup key={category} label={category}>
+                          {names.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+
+
+
+
+                  ) : (
+                    <input
+                      type={field === "email" ? "email" : "text"}
+                      name={field}
+                      required
+                      readOnly={started}
+                      className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                      placeholder={`${t.enterField} ${field}`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
 
             {lockoutMessage && (
               <div className="mt-4 p-4 border-2 border-black bg-gray-50">
