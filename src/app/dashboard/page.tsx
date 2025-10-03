@@ -33,15 +33,15 @@ import { NextResponse } from "next/server";
 
 type Submission = {
   _id: string;
-  name: string;
-  email: string;
-  mobile: string;
-  batch: string;
-  tutor: string;
-  score: number;
-  passed: boolean;
-  submittedAt: string;
-  type: string;
+  name?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  batch?: string | null;
+  tutor?: string | null;
+  score?: number;
+  passed?: boolean;
+  submittedAt?: string;
+  type?: string | null;
   // certificate?: string; // base64 string for download
 };
 
@@ -81,6 +81,9 @@ export default function Dashboard() {
 
   // Filtered submissions: apply status, exam type, and search filters
   const filteredSubmissions = submissions.filter((s) => {
+    // Skip if submission is null or undefined
+    if (!s) return false;
+    
     // Status filter
     if (statusFilter === "passed" && !s.passed) return false;
     if (statusFilter === "failed" && s.passed) return false;
@@ -93,11 +96,11 @@ export default function Dashboard() {
       const q = search.toLowerCase();
 
       return (
-        s.name.toLowerCase().includes(q) ||
-        s.email.toLowerCase().includes(q) ||
-        s.mobile.toLowerCase().includes(q) ||
-        s.batch.toLowerCase().includes(q) ||
-        s.tutor.toLowerCase().includes(q)
+        (s.name || '').toLowerCase().includes(q) ||
+        (s.email || '').toLowerCase().includes(q) ||
+        (s.mobile || '').toLowerCase().includes(q) ||
+        (s.batch || '').toLowerCase().includes(q) ||
+        (s.tutor || '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -106,12 +109,14 @@ export default function Dashboard() {
   // Sort filtered submissions
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     // Sort by score first, then by date
-    const scoreDiff = sorting ? b.score - a.score : a.score - b.score;
+    const scoreA = a.score || 0;
+    const scoreB = b.score || 0;
+    const scoreDiff = sorting ? scoreB - scoreA : scoreA - scoreB;
     if (scoreDiff !== 0) return scoreDiff;
     
     // If scores are equal, sort by date
-    const dateA = new Date(a.submittedAt).getTime();
-    const dateB = new Date(b.submittedAt).getTime();
+    const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+    const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
     return dateSorting ? dateB - dateA : dateA - dateB;
   });
 
@@ -419,33 +424,33 @@ export default function Dashboard() {
                     <div className="grid grid-cols-10 gap-6 items-center text-sm min-w-[1200px]">
                       {/* Student Info - Column 1-2 */}
                       <div className="col-span-2">
-                        <div className="font-medium text-black truncate">{s.name}</div>
+                        <div className="font-medium text-black truncate">{s.name || 'N/A'}</div>
                         <div className="text-xs text-gray-500 font-light mt-1">
-                          {new Date(s.submittedAt).toLocaleDateString('en-US', {
+                          {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit'
-                          })}
+                          }) : 'N/A'}
                         </div>
                       </div>
 
                       {/* Contact - Column 3-4 */}
                       <div className="col-span-2">
-                        <div className="text-gray-600 font-light text-xs truncate">{s.email}</div>
-                        <div className="text-gray-600 font-light text-xs mt-1">{s.mobile}</div>
+                        <div className="text-gray-600 font-light text-xs truncate">{s.email || 'N/A'}</div>
+                        <div className="text-gray-600 font-light text-xs mt-1">{s.mobile || 'N/A'}</div>
                       </div>
 
                       {/* Batch - Column 5 */}
-                      <div className="text-gray-600 font-light truncate">{s.batch}</div>
+                      <div className="text-gray-600 font-light truncate">{s.batch || 'N/A'}</div>
 
                       {/* Tutor - Column 6 */}
-                      <div className="text-gray-600 font-light truncate">{s.tutor}</div>
+                      <div className="text-gray-600 font-light truncate">{s.tutor || 'N/A'}</div>
 
                       {/* Score - Column 7 */}
                       <div className="font-medium text-black text-center">
-                        {s.score}<span className="text-gray-400 font-light">/15</span>
+                        {s.score || 0}<span className="text-gray-400 font-light">/15</span>
                       </div>
 
                       {/* Status - Column 8 */}
@@ -462,7 +467,7 @@ export default function Dashboard() {
                       </div>
 
                       {/* Type - Column 9 */}
-                      <div className="text-gray-600 font-light capitalize">{s.type}</div>
+                      <div className="text-gray-600 font-light capitalize">{s.type || 'Unknown'}</div>
 
                       {/* Delete Action - Column 10 (should be in Action column) */}
                       <div className="flex justify-center">
@@ -698,8 +703,8 @@ export default function Dashboard() {
                   {/* Header with name, status, and exam type */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-black truncate">{s.name}</h3>
-                      <p className="text-xs text-gray-500 mt-1 capitalize">{s.type} Exam</p>
+                      <h3 className="font-medium text-black truncate">{s.name || 'N/A'}</h3>
+                      <p className="text-xs text-gray-500 mt-1 capitalize">{s.type || 'Unknown'} Exam</p>
                     </div>
                     <div className="flex flex-col items-end gap-2 ml-4">
                       {s.passed ? (
@@ -712,7 +717,7 @@ export default function Dashboard() {
                         </span>
                       )}
                       <div className="font-medium text-black text-sm">
-                        {s.score}<span className="text-gray-400 font-light">/15</span>
+                        {s.score || 0}<span className="text-gray-400 font-light">/15</span>
                       </div>
                     </div>
                   </div>
@@ -721,11 +726,11 @@ export default function Dashboard() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-t border-gray-100">
                     <div>
                       <span className="text-xs text-gray-500 block">Email</span>
-                      <span className="text-sm text-gray-600 font-light break-all">{s.email}</span>
+                      <span className="text-sm text-gray-600 font-light break-all">{s.email || 'N/A'}</span>
                     </div>
                     <div>
                       <span className="text-xs text-gray-500 block">Mobile</span>
-                      <span className="text-sm text-gray-600 font-light">{s.mobile}</span>
+                      <span className="text-sm text-gray-600 font-light">{s.mobile || 'N/A'}</span>
                     </div>
                   </div>
 
@@ -733,11 +738,11 @@ export default function Dashboard() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-t border-gray-100">
                     <div>
                       <span className="text-xs text-gray-500 block">Batch</span>
-                      <span className="text-sm text-gray-600 font-light">{s.batch}</span>
+                      <span className="text-sm text-gray-600 font-light">{s.batch || 'N/A'}</span>
                     </div>
                     <div>
                       <span className="text-xs text-gray-500 block">Tutor</span>
-                      <span className="text-sm text-gray-600 font-light">{s.tutor}</span>
+                      <span className="text-sm text-gray-600 font-light">{s.tutor || 'N/A'}</span>
                     </div>
                   </div>
 
@@ -746,13 +751,13 @@ export default function Dashboard() {
                     <div>
                       <span className="text-xs text-gray-500 block">Submitted</span>
                       <div className="text-xs text-gray-600 font-light">
-                        {new Date(s.submittedAt).toLocaleDateString('en-US', {
+                        {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
-                        })}
+                        }) : 'N/A'}
                       </div>
                     </div>
                     <button
