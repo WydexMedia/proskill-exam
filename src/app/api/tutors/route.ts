@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const tutors: Record<string, string[]> = {
-  "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
+  "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna","Thesnim"],
   "Mehandi Tutor": ["Jasira"],
   "Digital Marketing": ["Brijesh"],
   "Ocean Tutors":["Hamna"]
