@@ -28,11 +28,7 @@ export async function generateCertificatePDF(name: string, dateStr: string) {
   const certImagePath = path.join(process.cwd(), "public/certificate.jpg");
   const certImageBytes = fs.readFileSync(certImagePath);
 
-  const fontPath = path.join(process.cwd(), "public/fonts/FormaleScript_PERSONAL_USE_ONLY.otf");
-  const customFontBytes = fs.readFileSync(fontPath);
-
   const pdfDoc = await PDFDocument.create();
-  pdfDoc.registerFontkit(fontkit as any);
 
   const page = pdfDoc.addPage([842, 595]);
 
@@ -44,22 +40,21 @@ export async function generateCertificatePDF(name: string, dateStr: string) {
     height: 595,
   });
 
-  const cursiveFont = await pdfDoc.embedFont(customFontBytes);
+  const standardFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  const safeName = normalizeNameForCursive(name);
-  const textWidth = cursiveFont.widthOfTextAtSize(safeName, 28);
+  // Use the name as-is without normalization for normal font
+  const textWidth = standardFont.widthOfTextAtSize(name, 32);
   const pageWidth = 842;
   const centerX = (pageWidth - textWidth) / 2;
   
-  page.drawText(safeName, {
+  page.drawText(name, {
     x: centerX,
     y: 200,
-    size: 28,
-    font: cursiveFont,
+    size: 32,
+    font: standardFont,
     color: rgb(0, 0, 0),
   });
 
-  const standardFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   page.drawText(dateStr, {
     x: 255,
     y: 70,

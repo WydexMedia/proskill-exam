@@ -446,7 +446,10 @@ export default function ExamForm() {
       options: ["ലോഹ മോൾഡുകൾ", "സിലിക്കൺ മോൾഡുകൾ", "ഗ്ലാസ് മോൾഡുകൾ", "മര മോൾഡുകൾ"],
     },
   ];
- 
+   // tutor names  and positions
+    const tutors = {
+        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna", "Thesnim"]
+    };
 
   // Use appropriate questions based on language
   const currentQuestions = language === "ml" ? questionsMalayalam : questions;
