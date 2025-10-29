@@ -185,12 +185,7 @@ export default function MehndiExam() {
     { name: "final-color-factor", question: "മെഹന്തിയുടെ അന്തിമ നിറത്തെ ഏറ്റവും അധികം ബാധിക്കുന്ന ഘടകം ഏതാണ്?", options: ["5 മിനിറ്റിനുള്ളിൽ വെള്ളം തേക്കൽ", "ബ്രഷിന്റെ പകരം കോൺ ഉപയോഗിക്കൽ", "ശരീര താപനിലയും ചർമത്തിന്റെ സ്വഭാവവും", "ചുവപ്പ് ഹെന്ന മാത്രം ഉപയോഗിക്കൽ"] },
   ];
 
-  // tutor names  and positions
-  const tutors = {
-    "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna"],
-    "Mehandi Tutor": ["Jasira"],
-    "Digital Marketing": ["Brijesh"],
-  };
+  
 
   const currentQuestions = language === "ml" ? questionsML : questionsEN;
 
@@ -256,7 +251,7 @@ export default function MehndiExam() {
 
     if (result.success) {
       if (result.passed) {
-        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${result.type}`;
+        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${payload.type}`;
       } else {
         window.location.href = `/exam/failure?score=${result.score}&name=${payload.name}`;
       }

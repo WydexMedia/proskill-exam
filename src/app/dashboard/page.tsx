@@ -109,10 +109,10 @@ export default function Dashboard() {
   // Sort filtered submissions
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     // Sort by score first, then by date
-    const scoreA = a.score || 0;
-    const scoreB = b.score || 0;
-    const scoreDiff = sorting ? scoreB - scoreA : scoreA - scoreB;
-    if (scoreDiff !== 0) return scoreDiff;
+    // const scoreA = a.score || 0;
+    // const scoreB = b.score || 0;
+    // const scoreDiff = sorting ? scoreB - scoreA : scoreA - scoreB;
+    // if (scoreDiff !== 0) return scoreDiff;
     
     // If scores are equal, sort by date
     const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
 
   // setting true or false
-  const Ascending = () => { setSorting(!sorting) }
+  // const Ascending = () => { setSorting(!sorting) }
   const toggleDateSorting = () => { setDateSorting(!dateSorting) }
 
   // Count passed and failed in filtered submissions
@@ -392,7 +392,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-center">
                     <button 
                       className="flex items-center gap-1 hover:text-gray-700 transition-colors" 
-                      onClick={Ascending}
+                      // onClick={Ascending}
                       title={sorting ? "Sort by lowest score first" : "Sort by highest score first"}
                     >
                       <span>SCORE</span>

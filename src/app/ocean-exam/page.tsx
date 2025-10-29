@@ -443,7 +443,7 @@ export default function OceanExam() {
 
         if (result.success) {
             if (result.passed) {
-                window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${result.type}`;
+                window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${payload.type}`;
             } else {
                 window.location.href = `/exam/failure?score=${result.score}&name=${payload.name}`;
             }

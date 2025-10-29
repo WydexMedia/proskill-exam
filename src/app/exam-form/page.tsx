@@ -116,7 +116,7 @@ export default function ExamForm() {
     useEffect(() => {
     async function loadTutors() {
       try {
-        const data = await fetchTutorsByCategory("Resin Tutors");
+        const data = await fetchTutorsByCategory("Ocean Tutors");
         setList(data);
       } catch (err) {
         console.error(err);
@@ -280,7 +280,7 @@ export default function ExamForm() {
 
     if (result.success) {
       if (result.passed) {
-        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${result.type}`;
+        window.location.href = `/exam/success?score=${result.score}&name=${payload.name}&type=${payload.type}`;
       } else {
         window.location.href = `/exam/failure?score=${result.score}&name=${payload.name}`;
       }
@@ -523,23 +523,23 @@ export default function ExamForm() {
                                     </label>
 
                                     {field === "tutor" ? (
-                                        <select
-                                            name={field}
-                                            required
-                                            disabled={started}
-                                            className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
-                                        >
-                                            <option value="">Select Tutor</option>
-                                            {Object.entries(tutors).map(([group, names]) => (
-                                                <optgroup key={group} label={group}>
-                                                    {names.map((name) => (
-                                                        <option key={name} value={name}>
-                                                            {name}
-                                                        </option>
-                                                    ))}
-                                                </optgroup>
-                                            ))}
-                                        </select>
+                                         <select
+                      name="tutor"
+                      required
+                      className="w-full border-2 border-black px-4 py-2 focus:outline-none bg-white disabled:bg-gray-50"
+                    >
+                      <option value="">Select Tutor</option>
+
+                      {Object.entries(list).map(([category, names]) => (
+                        <optgroup key={category} label={category}>
+                          {names.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
                                     ) : (
                                         <input
                                             type={field === "email" ? "email" : "text"}
