@@ -112,11 +112,11 @@ export default function ExamForm() {
     }, 1000);
     return () => clearInterval(timer);
   }, [timeLeft, started]);
-
+// tutors fetching api and useeffect =================
     useEffect(() => {
     async function loadTutors() {
       try {
-        const data = await fetchTutorsByCategory("Ocean Tutors");
+        const data = await fetchTutorsByCategory("Resin Tutors");
         setList(data);
       } catch (err) {
         console.error(err);
@@ -133,6 +133,7 @@ export default function ExamForm() {
     }
     return res.json(); // { "Mehandi Tutor": ["Jasira"] }
   };
+// =================================================
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
       .toString()
@@ -446,10 +447,7 @@ export default function ExamForm() {
       options: ["ലോഹ മോൾഡുകൾ", "സിലിക്കൺ മോൾഡുകൾ", "ഗ്ലാസ് മോൾഡുകൾ", "മര മോൾഡുകൾ"],
     },
   ];
-   // tutor names  and positions
-    const tutors = {
-        "Resin Tutors": ["Rishana", "Asna", "Sumayya", "Hamna", "Thesnim"]
-    };
+   
 
   // Use appropriate questions based on language
   const currentQuestions = language === "ml" ? questionsMalayalam : questions;
