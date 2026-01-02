@@ -88,19 +88,19 @@ export default function Home() {
   const submitCode = () => {
     if (!activeExam) return;
     const code = examCodeInput.trim();
-    if (activeExam === 'resin' && code === 'PRORESIN2025') {
+    if (activeExam === 'resin' && code === 'PRORESIN2026') {
       setIsCodeModalOpen(false);
       sessionStorage.setItem("type","resin")
       router.push('/exam-form');
       return;
     }
-    if (activeExam === 'mehndi' && code === 'MEHANDIPRO2025') {
+    if (activeExam === 'mehndi' && code === 'MEHANDIPRO2026') {
       setIsCodeModalOpen(false);
       sessionStorage.setItem("type","mehandi")
       router.push('/mehandi-exam');
       return;
     }
-    if(activeExam === 'ocean' && code === "OCEANPRO2025"){
+    if(activeExam === 'ocean' && code === "OCEANPRO2026"){
       setIsCodeModalOpen(false);
       sessionStorage.setItem("type","ocean")
       router.push('/ocean-exam');
