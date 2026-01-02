@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import * as fontkit from "fontkit";
 
 // Normalize names for cursive/running fonts: if input is ALL CAPS, convert to Title Case.
 export function normalizeNameForCursive(input: string): string {
@@ -25,15 +24,15 @@ export function normalizeNameForCursive(input: string): string {
 }
 
 export async function generateCertificatePDF(name: string, dateStr: string) {
-  const certImagePath = path.join(process.cwd(), "public/certificate.jpg");
+  const certImagePath = path.join(process.cwd(), "public/certificate.png");
   const certImageBytes = fs.readFileSync(certImagePath);
 
   const pdfDoc = await PDFDocument.create();
 
   const page = pdfDoc.addPage([842, 595]);
 
-  const jpgImage = await pdfDoc.embedJpg(certImageBytes);
-  page.drawImage(jpgImage, {
+  const pngImage = await pdfDoc.embedPng(certImageBytes);
+  page.drawImage(pngImage, {
     x: 0,
     y: 0,
     width: 842,
